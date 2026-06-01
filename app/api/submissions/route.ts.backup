@@ -1,0 +1,89 @@
+import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
+
+const submissionsPath = path.join(process.cwd(), "data", "submissions.json");
+const trashPath = path.join(process.cwd(), "data", "deleted_submissions.json");
+
+function readJson(filePath: string) {
+  try {
+    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, "[]");
+    const raw = fs.readFileSync(filePath, "utf8").trim();
+    if (!raw) return [];
+    return JSON.parse(raw);
+  } catch {
+    fs.writeFileSync(filePath, "[]");
+    return [];
+  }
+}
+
+function writeJson(filePath: string, items: any[]) {
+  fs.writeFileSync(filePath, JSON.stringify(items, null, 2));
+}
+
+export async function GET() {
+  return NextResponse.json(readJson(submissionsPath));
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const submissions = readJson(submissionsPath);
+
+  const nickname = body.nickname || "sense-nickname";
+
+  const existingIndex = submissions.findIndex(
+    (item: any) => item.nickname?.toLowerCase() === nickname.toLowerCase()
+  );
+
+  const finalSubmission = {
+    nickname,
+    submittedAt: new Date().toISOString(),
+    groups: body.groups || {},
+    groupTables: body.groupTables || {},
+    knockout: body.knockout || {},
+  };
+
+  if (existingIndex >= 0) {
+    submissions[existingIndex] = finalSubmission;
+  } else {
+    submissions.push(finalSubmission);
+  }
+
+  writeJson(submissionsPath, submissions);
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(request: Request) {
+  const body = await request.json();
+  const nickname = body.nickname;
+
+  if (!nickname) {
+    return NextResponse.json({ ok: false, error: "Missing nickname" }, { status: 400 });
+  }
+
+  const submissions = readJson(submissionsPath);
+  const trash = readJson(trashPath);
+
+  const itemToDelete = submissions.find(
+    (item: any) => item.nickname?.toLowerCase() === nickname.toLowerCase()
+  );
+
+  if (!itemToDelete) {
+    return NextResponse.json({ ok: false, error: "Submission not found" }, { status: 404 });
+  }
+
+  trash.push({
+    ...itemToDelete,
+    deletedAt: new Date().toISOString(),
+  });
+
+  const filtered = submissions.filter(
+    (item: any) => item.nickname?.toLowerCase() !== nickname.toLowerCase()
+  );
+
+  writeJson(submissionsPath, filtered);
+  writeJson(trashPath, trash);
+
+  return NextResponse.json({ ok: true });
+}
