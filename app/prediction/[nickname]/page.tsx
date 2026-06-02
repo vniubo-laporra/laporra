@@ -133,15 +133,13 @@ function topTwoClass(team: string, predictedTable: any[], realTable: any[], grou
       return a.team.localeCompare(b.team);
     });
 
-  const predictedTop2 = sortTable(predictedTable)
-    .slice(0, 2)
-    .map((row: any) => row.team);
+  const predicted = sortTable(predictedTable);
+  const real = sortTable(realTable);
 
-  const realTop2 = sortTable(realTable)
-    .slice(0, 2)
-    .map((row: any) => row.team);
+  const firstExact = predicted[0]?.team === team && real[0]?.team === team;
+  const secondExact = predicted[1]?.team === team && real[1]?.team === team;
 
-  if (predictedTop2.includes(team) && realTop2.includes(team)) {
+  if (firstExact || secondExact) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 

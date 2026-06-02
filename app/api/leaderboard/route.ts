@@ -178,34 +178,24 @@ function scoreQualifiedFirstSecond(prediction: any, real: any) {
   Object.keys(GROUPS).forEach((group) => {
     if (!groupIsComplete(real, group)) return;
 
-    const realTable: any[] = calculateTableFromScores(real, group);
-    const predictedTable: any[] = calculateTableFromScores(prediction, group);
-
-    const realTop2 = realTable
-      .sort((a: any, b: any) => {
+    const sortTable = (table: any[]) =>
+      [...table].sort((a: any, b: any) => {
         if (b.points !== a.points) return b.points - a.points;
         if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
         if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
         return a.team.localeCompare(b.team);
-      })
-      .slice(0, 2)
-      .map((row: any) => row.team);
+      });
 
-    const predictedTop2 = predictedTable
-      .sort((a: any, b: any) => {
-        if (b.points !== a.points) return b.points - a.points;
-        if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
-        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
-        return a.team.localeCompare(b.team);
-      })
-      .slice(0, 2)
-      .map((row: any) => row.team);
+    const realTable: any[] = sortTable(calculateTableFromScores(real, group));
+    const predictedTable: any[] = sortTable(calculateTableFromScores(prediction, group));
 
-    predictedTop2.forEach((team: string) => {
-      if (realTop2.includes(team)) {
-        points += 6;
-      }
-    });
+    if (predictedTable[0]?.team && predictedTable[0]?.team === realTable[0]?.team) {
+      points += 6;
+    }
+
+    if (predictedTable[1]?.team && predictedTable[1]?.team === realTable[1]?.team) {
+      points += 6;
+    }
   });
 
   return points;
