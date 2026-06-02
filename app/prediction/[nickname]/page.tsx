@@ -72,9 +72,58 @@ function statClass(predictedValue: any, realValue: any, groupComplete: boolean) 
     : "rounded-lg bg-red-500/20 px-2 py-1 font-black text-red-300";
 }
 
+function calculateGroupTableFromScores(source: any, group: string) {
+  const table: any = {};
+
+  if (!GROUPS[group]) return [];
+
+  GROUPS[group].forEach((team: string) => {
+    table[team] = {
+      team,
+      played: 0,
+      points: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      goalDiff: 0,
+    };
+  });
+
+  for (let i = 1; i <= 6; i++) {
+    const matchId = `${group}${i}`;
+    const match = getMatchInfo(group, matchId);
+    const score = source?.groups?.[group]?.[matchId];
+
+    if (!match || !isCompleteScore(score)) continue;
+
+    const h = Number(score.home);
+    const a = Number(score.away);
+
+    table[match.home].played += 1;
+    table[match.away].played += 1;
+
+    table[match.home].goalsFor += h;
+    table[match.home].goalsAgainst += a;
+
+    table[match.away].goalsFor += a;
+    table[match.away].goalsAgainst += h;
+
+    if (h > a) {
+      table[match.home].points += 3;
+    } else if (a > h) {
+      table[match.away].points += 3;
+    } else {
+      table[match.home].points += 1;
+      table[match.away].points += 1;
+    }
+  }
+
+  return Object.values(table).map((row: any) => ({
+    ...row,
+    goalDiff: row.goalsFor - row.goalsAgainst,
+  }));
+}
 function GroupsView({ item, real }: any) {
   const groups = item.groupTables || item.group_tables || {};
-  const realTables = real.groupTables || real.group_tables || {};
 
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -82,7 +131,9 @@ function GroupsView({ item, real }: any) {
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([group, table]: any) => {
           const groupComplete = isGroupComplete(real, group);
-          const realTable = realTables[group] || [];
+
+          const predictedCalculatedTable: any[] = calculateGroupTableFromScores(item, group);
+          const realCalculatedTable: any[] = calculateGroupTableFromScores(real, group);
 
           return (
             <div key={group} className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
@@ -101,7 +152,11 @@ function GroupsView({ item, real }: any) {
 
                 <tbody>
                   {table.map((row: any, index: number) => {
-                    const realRow = realTable.find((r: any) => r.team === row.team);
+                    const predictedRow = predictedCalculatedTable.find((r: any) => r.team === row.team);
+                    const realRow = realCalculatedTable.find((r: any) => r.team === row.team);
+
+                    const predictedPoints = predictedRow?.points ?? row.points;
+                    const predictedGoalsFor = predictedRow?.goalsFor ?? row.goalsFor;
 
                     return (
                       <tr key={row.team} className="border-t border-slate-800">
@@ -109,14 +164,14 @@ function GroupsView({ item, real }: any) {
                         <td className="py-2 font-bold">{row.team}</td>
 
                         <td className="py-2 text-center">
-                          <span className={statClass(row.points, realRow?.points, groupComplete)}>
-                            {row.points}
+                          <span className={statClass(predictedPoints, realRow?.points, groupComplete)}>
+                            {predictedPoints}
                           </span>
                         </td>
 
                         <td className="py-2 text-center">
-                          <span className={statClass(row.goalsFor, realRow?.goalsFor, groupComplete)}>
-                            {row.goalsFor}
+                          <span className={statClass(predictedGoalsFor, realRow?.goalsFor, groupComplete)}>
+                            {predictedGoalsFor}
                           </span>
                         </td>
 
@@ -141,7 +196,6 @@ function GroupsView({ item, real }: any) {
     </div>
   );
 }
-
 function GroupScoresView({ item, real }: any) {
   const groups = item.groups || {};
 
