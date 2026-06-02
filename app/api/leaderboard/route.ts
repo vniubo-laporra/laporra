@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { getThirdPlaceBracket } from "@/lib/thirdPlaceMatrix";
 
 const GROUPS: any = {
   A: ["Mexico", "Sud-africa", "Corea del Sud", "Txequia"],
@@ -200,6 +201,93 @@ function scoreQualifiedFirstSecond(prediction: any, real: any) {
 
   return points;
 }
+
+function allGroupsComplete(real: any) {
+  return Object.keys(GROUPS).every((group) => groupIsComplete(real, group));
+}
+
+function sortedGroupTable(source: any, group: string) {
+  return calculateTableFromScores(source, group).sort((a: any, b: any) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+    return a.team.localeCompare(b.team);
+  });
+}
+
+function getQualifiedThirdDetails(source: any) {
+  const thirds = Object.keys(GROUPS)
+    .map((group) => {
+      const table = sortedGroupTable(source, group);
+      const third = table[2];
+
+      if (!third) return null;
+
+      return {
+        group,
+        team: third.team,
+        points: third.points,
+        goalDiff: third.goalDiff,
+        goalsFor: third.goalsFor,
+      };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      return String(a.group).localeCompare(String(b.group));
+    })
+    .slice(0, 8);
+
+  const groups = thirds.map((x: any) => x.group);
+
+  let matrix: any = null;
+
+  try {
+    matrix = getThirdPlaceBracket(groups).pairings;
+  } catch {
+    return [];
+  }
+
+  return thirds.map((third: any) => {
+    const thirdSlot = `3${third.group}`;
+
+    const firstSlot = Object.keys(matrix).find(
+      (key) => matrix[key] === thirdSlot
+    );
+
+    return {
+      ...third,
+      thirdSlot,
+      firstSlot,
+      bracketSlot: firstSlot ? `${firstSlot}-${thirdSlot}` : null,
+    };
+  });
+}
+
+function scoreThirdsQualifiedAndSlot(prediction: any, real: any) {
+  if (!allGroupsComplete(real)) return 0;
+
+  let points = 0;
+
+  const predictedThirds = getQualifiedThirdDetails(prediction);
+  const realThirds = getQualifiedThirdDetails(real);
+
+  predictedThirds.forEach((predicted: any) => {
+    const realMatch = realThirds.find((item: any) => item.team === predicted.team);
+
+    if (!realMatch) return;
+
+    points += 3;
+
+    if (predicted.bracketSlot && predicted.bracketSlot === realMatch.bracketSlot) {
+      points += 3;
+    }
+  });
+
+  return points;
+}
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -239,13 +327,15 @@ export async function GET() {
       const puntsTotalsEquipGrup = scoreTeamGroupPoints(prediction, real);
       const puntsGolsTotalsEquipGrup = scoreTeamGroupGoals(prediction, real);
       const puntsClassificatPrimerSegon = scoreQualifiedFirstSecond(prediction, real);
+      const puntsTercersClassificats = scoreThirdsQualifiedAndSlot(prediction, real);
 
       const total =
         punts1x2 +
         puntsGolsExactesEquip +
         puntsTotalsEquipGrup +
         puntsGolsTotalsEquipGrup +
-        puntsClassificatPrimerSegon;
+        puntsClassificatPrimerSegon +
+        puntsTercersClassificats;
 
       return {
         nickname: item.nickname,
@@ -255,6 +345,7 @@ export async function GET() {
         puntsTotalsEquipGrup,
         puntsGolsTotalsEquipGrup,
         puntsClassificatPrimerSegon,
+        puntsTercersClassificats,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
