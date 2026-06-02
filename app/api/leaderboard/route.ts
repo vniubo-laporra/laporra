@@ -171,6 +171,45 @@ function scoreTeamGroupGoals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreQualifiedFirstSecond(prediction: any, real: any) {
+  let points = 0;
+
+  Object.keys(GROUPS).forEach((group) => {
+    if (!groupIsComplete(real, group)) return;
+
+    const realTable: any[] = calculateTableFromScores(real, group);
+    const predictedTable: any[] = calculateTableFromScores(prediction, group);
+
+    const realTop2 = realTable
+      .sort((a: any, b: any) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+        return a.team.localeCompare(b.team);
+      })
+      .slice(0, 2)
+      .map((row: any) => row.team);
+
+    const predictedTop2 = predictedTable
+      .sort((a: any, b: any) => {
+        if (b.points !== a.points) return b.points - a.points;
+        if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+        if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+        return a.team.localeCompare(b.team);
+      })
+      .slice(0, 2)
+      .map((row: any) => row.team);
+
+    predictedTop2.forEach((team: string) => {
+      if (realTop2.includes(team)) {
+        points += 6;
+      }
+    });
+  });
+
+  return points;
+}
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -209,12 +248,14 @@ export async function GET() {
       const puntsGolsExactesEquip = scoreExactGoalsPerTeamPerMatch(prediction, real);
       const puntsTotalsEquipGrup = scoreTeamGroupPoints(prediction, real);
       const puntsGolsTotalsEquipGrup = scoreTeamGroupGoals(prediction, real);
+      const puntsClassificatPrimerSegon = scoreQualifiedFirstSecond(prediction, real);
 
       const total =
         punts1x2 +
         puntsGolsExactesEquip +
         puntsTotalsEquipGrup +
-        puntsGolsTotalsEquipGrup;
+        puntsGolsTotalsEquipGrup +
+        puntsClassificatPrimerSegon;
 
       return {
         nickname: item.nickname,
@@ -223,6 +264,7 @@ export async function GET() {
         puntsGolsExactesEquip,
         puntsTotalsEquipGrup,
         puntsGolsTotalsEquipGrup,
+        puntsClassificatPrimerSegon,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);

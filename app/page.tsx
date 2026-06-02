@@ -85,6 +85,7 @@ export default function HomePage() {
                   <th className="p-3 text-center">Gols exactes equip</th>
                   <th className="p-3 text-center">Punts equip grup</th>
                   <th className="p-3 text-center">Gols totals equip grup</th>
+                  <th className="p-3 text-center">Classificat 1r/2n</th>
                 </tr>
               </thead>
 
@@ -104,12 +105,13 @@ export default function HomePage() {
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsExactesEquip}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsTotalsEquipGrup}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsTotalsEquipGrup}</td>
+                    <td className="p-3 text-center font-bold text-slate-300">{row.puntsClassificatPrimerSegon}</td>
                   </tr>
                 ))}
 
                 {leaderboard.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="p-6 text-center text-slate-400">
+                    <td colSpan={8} className="p-6 text-center text-slate-400">
                       Encara no hi ha prediccions validades.
                     </td>
                   </tr>
