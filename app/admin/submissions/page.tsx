@@ -408,6 +408,16 @@ export default function AdminSubmissionsPage() {
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
+                      window.location.href = `/admin/submissions/edit/${encodeURIComponent(item.nickname)}`;
+                    }}
+                    className="rounded-xl bg-blue-600/20 px-4 py-2 text-sm font-black text-blue-300 hover:bg-blue-600/40"
+                  >
+                    Editar
+                  </span>
+
+                  <span
+                    onClick={(e) => {
+                      e.stopPropagation();
                       deleteSubmission(item.nickname);
                     }}
                     className="rounded-xl bg-red-600/20 px-4 py-2 text-sm font-black text-red-300 hover:bg-red-600/40"
