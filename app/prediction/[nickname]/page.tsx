@@ -40,19 +40,28 @@ function resultStatus(predicted: any, realScore: any) {
   const rh = Number(realScore.home);
   const ra = Number(realScore.away);
 
-  if (ph === rh && pa === ra) return "exact";
+  const homeGoalOk = ph === rh;
+  const awayGoalOk = pa === ra;
+  const anyGoalOk = homeGoalOk || awayGoalOk;
+  const bothGoalsOk = homeGoalOk && awayGoalOk;
 
   const po = ph > pa ? "1" : ph < pa ? "2" : "X";
   const ro = rh > ra ? "1" : rh < ra ? "2" : "X";
+  const outcomeOk = po === ro;
 
-  if (po === ro) return "outcome";
+  if (bothGoalsOk && outcomeOk) return "exact";
+  if (outcomeOk && anyGoalOk) return "outcome_goal";
+  if (outcomeOk && !anyGoalOk) return "outcome_only";
+  if (!outcomeOk && anyGoalOk) return "goal_only";
   return "wrong";
 }
 
 function resultClass(status: string) {
-  if (status === "exact") return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-  if (status === "outcome") return "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
-  if (status === "wrong") return "bg-red-500/20 text-red-300 border border-red-500/40";
+  if (status === "exact") return "bg-emerald-800/80 text-emerald-100 border border-emerald-500";
+  if (status === "outcome_goal") return "bg-lime-700/60 text-lime-100 border border-lime-500";
+  if (status === "outcome_only") return "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
+  if (status === "goal_only") return "bg-red-400/20 text-red-200 border border-red-400/40";
+  if (status === "wrong") return "bg-red-950/80 text-red-300 border border-red-800";
   return "bg-slate-900 text-slate-400 border border-slate-800";
 }
 
