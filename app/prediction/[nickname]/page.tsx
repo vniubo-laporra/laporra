@@ -122,6 +122,26 @@ function calculateGroupTableFromScores(source: any, group: string) {
     goalDiff: row.goalsFor - row.goalsAgainst,
   }));
 }
+function topTwoClass(team: string, predictedTable: any[], realTable: any[], groupComplete: boolean) {
+  if (!groupComplete) return "";
+
+  const sortTable = (table: any[]) =>
+    [...table].sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      return a.team.localeCompare(b.team);
+    });
+
+  const predictedTop2 = sortTable(predictedTable).slice(0, 2).map((row: any) => row.team);
+  const realTop2 = sortTable(realTable).slice(0, 2).map((row: any) => row.team);
+
+  if (!predictedTop2.includes(team)) return "";
+
+  return realTop2.includes(team)
+    ? "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300"
+    : "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+}
 function GroupsView({ item, real }: any) {
   const groups = item.groupTables || item.group_tables || {};
 
@@ -161,7 +181,11 @@ function GroupsView({ item, real }: any) {
                     return (
                       <tr key={row.team} className="border-t border-slate-800">
                         <td className="py-2 font-bold text-slate-500">{index + 1}</td>
-                        <td className="py-2 font-bold">{row.team}</td>
+                        <td className="py-2 font-bold">
+                          <span className={topTwoClass(row.team, predictedCalculatedTable, realCalculatedTable, groupComplete)}>
+                            {row.team}
+                          </span>
+                        </td>
 
                         <td className="py-2 text-center">
                           <span className={statClass(predictedPoints, realRow?.points, groupComplete)}>
