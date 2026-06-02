@@ -133,14 +133,19 @@ function topTwoClass(team: string, predictedTable: any[], realTable: any[], grou
       return a.team.localeCompare(b.team);
     });
 
-  const predictedTop2 = sortTable(predictedTable).slice(0, 2).map((row: any) => row.team);
-  const realTop2 = sortTable(realTable).slice(0, 2).map((row: any) => row.team);
+  const predictedTop2 = sortTable(predictedTable)
+    .slice(0, 2)
+    .map((row: any) => row.team);
 
-  if (!predictedTop2.includes(team)) return "";
+  const realTop2 = sortTable(realTable)
+    .slice(0, 2)
+    .map((row: any) => row.team);
 
-  return realTop2.includes(team)
-    ? "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300"
-    : "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+  if (predictedTop2.includes(team) && realTop2.includes(team)) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  return "";
 }
 function GroupsView({ item, real }: any) {
   const groups = item.groupTables || item.group_tables || {};
