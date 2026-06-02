@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { GROUPS } from "@/lib/groupsData";
+import { getThirdPlaceBracket } from "@/lib/thirdPlaceMatrix";
 
 function getMatchInfo(group: string, matchId: string) {
   const teams = GROUPS[group];
@@ -145,6 +146,90 @@ function topTwoClass(team: string, predictedTable: any[], realTable: any[], grou
 
   return "";
 }
+
+function allRealGroupsComplete(real: any) {
+  return Object.keys(GROUPS).every((group) => isGroupComplete(real, group));
+}
+
+function sortedCalculatedTable(source: any, group: string) {
+  return calculateGroupTableFromScores(source, group).sort((a: any, b: any) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+    if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+    return a.team.localeCompare(b.team);
+  });
+}
+
+function getQualifiedThirdDetailsForSource(source: any) {
+  const thirds = Object.keys(GROUPS)
+    .map((group) => {
+      const table = sortedCalculatedTable(source, group);
+      const third = table[2];
+
+      if (!third) return null;
+
+      return {
+        group,
+        team: third.team,
+        points: third.points,
+        goalDiff: third.goalDiff,
+        goalsFor: third.goalsFor,
+      };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      return String(a.group).localeCompare(String(b.group));
+    })
+    .slice(0, 8);
+
+  const groups = thirds.map((x: any) => x.group);
+
+  let matrix: any = null;
+
+  try {
+    matrix = getThirdPlaceBracket(groups).pairings;
+  } catch {
+    return [];
+  }
+
+  return thirds.map((third: any) => {
+    const thirdSlot = `3${third.group}`;
+    const firstSlot = Object.keys(matrix).find((key) => matrix[key] === thirdSlot);
+
+    return {
+      ...third,
+      thirdSlot,
+      firstSlot,
+      bracketSlot: firstSlot ? `${firstSlot}-${thirdSlot}` : null,
+    };
+  });
+}
+
+function thirdQualifiedClass(team: string, item: any, real: any) {
+  if (!allRealGroupsComplete(real)) return "";
+
+  const predictedThirds = getQualifiedThirdDetailsForSource(item);
+  const realThirds = getQualifiedThirdDetailsForSource(real);
+
+  const predicted = predictedThirds.find((x: any) => x.team === team);
+  if (!predicted) return "";
+
+  const realMatch = realThirds.find((x: any) => x.team === team);
+  if (!realMatch) return "";
+
+  if (predicted.bracketSlot && predicted.bracketSlot === realMatch.bracketSlot) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+}
+
+function combineClasses(...classes: string[]) {
+  return classes.filter(Boolean).join(" ");
+}
 function GroupsView({ item, real }: any) {
   const groups = item.groupTables || item.group_tables || {};
 
@@ -185,7 +270,10 @@ function GroupsView({ item, real }: any) {
                       <tr key={row.team} className="border-t border-slate-800">
                         <td className="py-2 font-bold text-slate-500">{index + 1}</td>
                         <td className="py-2 font-bold">
-                          <span className={topTwoClass(row.team, predictedCalculatedTable, realCalculatedTable, groupComplete)}>
+                          <span className={combineClasses(
+                            topTwoClass(row.team, predictedCalculatedTable, realCalculatedTable, groupComplete),
+                            thirdQualifiedClass(row.team, item, real)
+                          )}>
                             {row.team}
                           </span>
                         </td>
