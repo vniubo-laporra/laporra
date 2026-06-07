@@ -515,6 +515,12 @@ function round32ResultClass(match: any, real: any) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
   }
 
+  const realScore = real?.knockout?.[match.id];
+
+  if (!isCompleteScore(realScore)) {
+    return "bg-slate-900 text-slate-400 border border-slate-800";
+  }
+
   const realTables: any = {};
 
   Object.keys(GROUPS).forEach((group) => {
