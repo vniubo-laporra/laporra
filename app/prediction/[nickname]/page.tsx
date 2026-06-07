@@ -534,15 +534,12 @@ function round32ResultClass(match: any, real: any) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
   }
 
-  let correct = 0;
+  const predictedTeams = [match.home, match.away].filter(Boolean);
+  const realTeams = [realMatch.home, realMatch.away].filter(Boolean);
 
-  if (match.home && realMatch.home && match.home === realMatch.home) {
-    correct += 1;
-  }
-
-  if (match.away && realMatch.away && match.away === realMatch.away) {
-    correct += 1;
-  }
+  const correct = predictedTeams.filter((team: string) =>
+    realTeams.includes(team)
+  ).length;
 
   if (correct === 2) {
     return "bg-emerald-800/80 text-emerald-100 border border-emerald-500";
