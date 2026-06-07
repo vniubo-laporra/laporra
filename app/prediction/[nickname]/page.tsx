@@ -509,6 +509,45 @@ function round32TeamClass(
 
   return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
 }
+
+function round32ResultClass(match: any, real: any) {
+  if (!allRealGroupsComplete(real)) {
+    return "bg-slate-900 text-slate-400 border border-slate-800";
+  }
+
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
+  const realMatch = realBracket.find((m: any) => m.id === match.id);
+
+  if (!realMatch) {
+    return "bg-slate-900 text-slate-400 border border-slate-800";
+  }
+
+  let correct = 0;
+
+  if (match.home && realMatch.home && match.home === realMatch.home) {
+    correct += 1;
+  }
+
+  if (match.away && realMatch.away && match.away === realMatch.away) {
+    correct += 1;
+  }
+
+  if (correct === 2) {
+    return "bg-emerald-800/80 text-emerald-100 border border-emerald-500";
+  }
+
+  if (correct === 1) {
+    return "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
+  }
+
+  return "bg-red-950/80 text-red-300 border border-red-800";
+}
 function KnockoutView({ item, real }: any) {
   const knockout = item.knockout || {};
   const tables = item.groupTables || item.group_tables || {};
@@ -554,7 +593,11 @@ function KnockoutView({ item, real }: any) {
                             {match.home || "Pendent"}
                           </span>
                         </td>
-                      <td className="py-3 text-center font-black">
+                      <td className={`py-3 text-center font-black rounded-xl border ${
+                        match.round === "Setzens"
+                          ? round32ResultClass(match, real)
+                          : ""
+                      }`}>
                         {score.home ?? "-"} - {score.away ?? "-"}
                       </td>
                       <td className="py-3 font-bold">
