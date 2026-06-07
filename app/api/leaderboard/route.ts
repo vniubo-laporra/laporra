@@ -299,6 +299,10 @@ function scoreRound32ExactGoals(prediction: any, real: any) {
     "M85","M86","M87","M88"
   ];
 
+  function hasValue(value: any) {
+    return value !== undefined && value !== null && value !== "";
+  }
+
   matches.forEach((matchId) => {
     const predicted = prediction?.knockout?.[matchId];
     const realMatch = real?.knockout?.[matchId];
@@ -306,16 +310,16 @@ function scoreRound32ExactGoals(prediction: any, real: any) {
     if (!predicted || !realMatch) return;
 
     if (
-      predicted.home !== undefined &&
-      realMatch.home !== undefined &&
+      hasValue(predicted.home) &&
+      hasValue(realMatch.home) &&
       Number(predicted.home) === Number(realMatch.home)
     ) {
       points += 4;
     }
 
     if (
-      predicted.away !== undefined &&
-      realMatch.away !== undefined &&
+      hasValue(predicted.away) &&
+      hasValue(realMatch.away) &&
       Number(predicted.away) === Number(realMatch.away)
     ) {
       points += 4;
