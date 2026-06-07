@@ -475,32 +475,27 @@ function getRealRound32Teams(real: any) {
   return buildPredictedBracket(tables, real.knockout || {});
 }
 
-function round32TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
-  if (!team) return "";
-  if (!allRealGroupsComplete(real)) return "";
+function round32TeamClass(
+  predictedTeam: string | null,
+  matchId: string,
+  side: "home" | "away",
+  real: any
+) {
+  if (!predictedTeam) return "";
 
-  const realTables: any = {};
+  const realMatch = real?.knockout?.[matchId];
 
-  Object.keys(GROUPS).forEach((group) => {
-    realTables[group] = sortedCalculatedTable(real, group);
-  });
+  if (!realMatch) return "";
 
-  const realRound32 = buildPredictedBracket(realTables, real.knockout || {})
-    .filter((m: any) => m.round === "Setzens");
+  const realTeam = realMatch[side];
 
-  const realSameSlot = realRound32.find((m: any) => m.id === matchId);
+  if (!realTeam) return "";
 
-  if (realSameSlot && realSameSlot[side] === team) {
+  if (predictedTeam === realTeam) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
-  const realAnywhere = realRound32.find((m: any) => m.home === team || m.away === team);
-
-  if (realAnywhere) {
-    return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
-  }
-
-  return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+  return "";
 }
 function KnockoutView({ item, real }: any) {
   const knockout = item.knockout || {};
