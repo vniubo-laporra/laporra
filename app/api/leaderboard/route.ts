@@ -288,6 +288,42 @@ function scoreThirdsQualifiedAndSlot(prediction: any, real: any) {
 
   return points;
 }
+
+function scoreRound32ExactGoals(prediction: any, real: any) {
+  let points = 0;
+
+  const matches = [
+    "M73","M74","M75","M76",
+    "M77","M78","M79","M80",
+    "M81","M82","M83","M84",
+    "M85","M86","M87","M88"
+  ];
+
+  matches.forEach((matchId) => {
+    const predicted = prediction?.knockout?.[matchId];
+    const realMatch = real?.knockout?.[matchId];
+
+    if (!predicted || !realMatch) return;
+
+    if (
+      predicted.home !== undefined &&
+      realMatch.home !== undefined &&
+      Number(predicted.home) === Number(realMatch.home)
+    ) {
+      points += 4;
+    }
+
+    if (
+      predicted.away !== undefined &&
+      realMatch.away !== undefined &&
+      Number(predicted.away) === Number(realMatch.away)
+    ) {
+      points += 4;
+    }
+  });
+
+  return points;
+}
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -328,6 +364,7 @@ export async function GET() {
       const puntsGolsTotalsEquipGrup = scoreTeamGroupGoals(prediction, real);
       const puntsClassificatPrimerSegon = scoreQualifiedFirstSecond(prediction, real);
       const puntsTercersClassificats = scoreThirdsQualifiedAndSlot(prediction, real);
+      const puntsGolsSetzens = scoreRound32ExactGoals(prediction, real);
 
       const total =
         punts1x2 +
@@ -335,7 +372,8 @@ export async function GET() {
         puntsTotalsEquipGrup +
         puntsGolsTotalsEquipGrup +
         puntsClassificatPrimerSegon +
-        puntsTercersClassificats;
+        puntsTercersClassificats +
+        puntsGolsSetzens;
 
       return {
         nickname: item.nickname,
@@ -346,6 +384,7 @@ export async function GET() {
         puntsGolsTotalsEquipGrup,
         puntsClassificatPrimerSegon,
         puntsTercersClassificats,
+        puntsGolsSetzens,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
