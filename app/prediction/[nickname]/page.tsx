@@ -482,16 +482,20 @@ function round32TeamClass(
   real: any
 ) {
   if (!predictedTeam) return "";
+  if (!allRealGroupsComplete(real)) return "";
 
-  const realMatch = real?.knockout?.[matchId];
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const realBracket = buildPredictedBracket(realTables, real.knockout || []);
+  const realMatch = realBracket.find((m: any) => m.id === matchId);
 
   if (!realMatch) return "";
 
-  const realTeam = realMatch[side];
-
-  if (!realTeam) return "";
-
-  if (predictedTeam === realTeam) {
+  if (realMatch[side] === predictedTeam) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
