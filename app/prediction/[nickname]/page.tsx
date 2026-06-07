@@ -477,12 +477,11 @@ function getRealRound32Teams(real: any) {
 
 function round32TeamClass(team: string | null, matchId: string, item: any, real: any) {
   if (!team) return "";
-
   if (!allRealGroupsComplete(real)) return "";
 
   const predictedTables = item.groupTables || item.group_tables || {};
-  const realTables: any = {};
 
+  const realTables: any = {};
   Object.keys(GROUPS).forEach((group) => {
     realTables[group] = sortedCalculatedTable(real, group);
   });
@@ -498,11 +497,14 @@ function round32TeamClass(team: string | null, matchId: string, item: any, real:
 
   if (!predictedMatch || !realMatch) return "";
 
-  const exactPosition =
-    team === realMatch.home && team === predictedMatch.home ||
-    team === realMatch.away && team === predictedMatch.away;
+  const isHomeInPrediction = predictedMatch.home === team;
+  const isAwayInPrediction = predictedMatch.away === team;
 
-  if (exactPosition) {
+  const correctExactSlot =
+    (isHomeInPrediction && realMatch.home === team) ||
+    (isAwayInPrediction && realMatch.away === team);
+
+  if (correctExactSlot) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
