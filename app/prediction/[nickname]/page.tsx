@@ -510,42 +510,23 @@ function round32TeamClass(
   return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
 }
 
-function round32ResultClass(match: any, real: any) {
-  if (!allRealGroupsComplete(real)) {
-    return "bg-slate-900 text-slate-400 border border-slate-800";
-  }
-
-  const realScore = real?.knockout?.[match.id];
-
+function round32ResultClass(predictedScore: any, realScore: any) {
   if (!isCompleteScore(realScore)) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
   }
 
-  const realTables: any = {};
-
-  Object.keys(GROUPS).forEach((group) => {
-    realTables[group] = sortedCalculatedTable(real, group);
-  });
-
-  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
-  const realMatch = realBracket.find((m: any) => m.id === match.id);
-
-  if (!realMatch) {
-    return "bg-slate-900 text-slate-400 border border-slate-800";
+  if (!isCompleteScore(predictedScore)) {
+    return "bg-red-950/80 text-red-300 border border-red-800";
   }
 
-  const predictedTeams = [match.home, match.away].filter(Boolean);
-  const realTeams = [realMatch.home, realMatch.away].filter(Boolean);
+  const homeOk = Number(predictedScore.home) === Number(realScore.home);
+  const awayOk = Number(predictedScore.away) === Number(realScore.away);
 
-  const correct = predictedTeams.filter((team: string) =>
-    realTeams.includes(team)
-  ).length;
-
-  if (correct === 2) {
+  if (homeOk && awayOk) {
     return "bg-emerald-800/80 text-emerald-100 border border-emerald-500";
   }
 
-  if (correct === 1) {
+  if (homeOk || awayOk) {
     return "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40";
   }
 
@@ -600,7 +581,7 @@ function KnockoutView({ item, real }: any) {
                         <span
                           className={`inline-flex min-w-[72px] items-center justify-center rounded-xl px-3 py-1 ${
                             match.round === "Setzens"
-                              ? round32ResultClass(match, real)
+                              ? round32ResultClass(score, real?.knockout?.[match.id])
                               : ""
                           }`}
                         >
