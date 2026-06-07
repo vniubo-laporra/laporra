@@ -498,15 +498,9 @@ function round32TeamClass(team: string | null, matchId: string, item: any, real:
 
   if (!predictedMatch || !realMatch) return "";
 
-  const realTeams = [
-    realMatch.home,
-    realMatch.away,
-  ].filter(Boolean);
-
   const exactPosition =
-    realMatch.home === predictedMatch.home &&
-    realMatch.away === predictedMatch.away &&
-    realTeams.includes(team);
+    team === realMatch.home && team === predictedMatch.home ||
+    team === realMatch.away && team === predictedMatch.away;
 
   if (exactPosition) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
