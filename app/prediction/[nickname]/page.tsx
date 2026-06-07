@@ -466,7 +466,7 @@ function buildPredictedBracket(tables: any, scores: any) {
 }
 
 function getRealRound32Teams(real: any) {
-  const tables = {};
+  const tables: any = {};
 
   Object.keys(GROUPS).forEach((group) => {
     tables[group] = sortedCalculatedTable(real, group);
