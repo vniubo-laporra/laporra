@@ -464,7 +464,66 @@ function buildPredictedBracket(tables: any, scores: any) {
 
   return [...round32, ...r16, ...quarters, ...semis, ...thirdPlace, ...final];
 }
-function KnockoutView({ item }: any) {
+
+function getRealRound32Teams(real: any) {
+  const tables = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    tables[group] = sortedCalculatedTable(real, group);
+  });
+
+  return buildPredictedBracket(tables, real.knockout || {});
+}
+
+function round32TeamClass(team: string | null, matchId: string, item: any, real: any) {
+  if (!team) return "";
+
+  if (!allRealGroupsComplete(real)) return "";
+
+  const predictedTables = item.groupTables || item.group_tables || {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const predictedRound32 = buildPredictedBracket(predictedTables, item.knockout || {})
+    .filter((m: any) => m.round === "Setzens");
+
+  const realRound32 = buildPredictedBracket(realTables, real.knockout || {})
+    .filter((m: any) => m.round === "Setzens");
+
+  const predictedMatch = predictedRound32.find((m: any) => m.id === matchId);
+  const realMatch = realRound32.find((m: any) => m.id === matchId);
+
+  if (!predictedMatch || !realMatch) return "";
+
+  const realTeams = [
+    realMatch.home,
+    realMatch.away,
+  ].filter(Boolean);
+
+  const exactPosition =
+    realMatch.home === predictedMatch.home &&
+    realMatch.away === predictedMatch.away &&
+    realTeams.includes(team);
+
+  if (exactPosition) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  const allRealQualifiedTeams = realRound32.flatMap((m: any) => [
+    m.home,
+    m.away,
+  ]);
+
+  if (allRealQualifiedTeams.includes(team)) {
+    return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+  }
+
+  return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+}
+function KnockoutView({ item, real }: any) {
   const knockout = item.knockout || {};
   const tables = item.groupTables || item.group_tables || {};
   const bracket = buildPredictedBracket(tables, knockout);
@@ -502,11 +561,23 @@ function KnockoutView({ item }: any) {
                   return (
                     <tr key={match.id} className="border-t border-slate-800">
                       <td className="py-3 font-bold text-slate-500">{match.id}</td>
-                      <td className="py-3 font-bold">{match.home || "Pendent"}</td>
+                      <td className="py-3 font-bold">
+                          <span className={match.round === "Setzens"
+                            ? round32TeamClass(match.home, match.id, item, real)
+                            : ""}>
+                            {match.home || "Pendent"}
+                          </span>
+                        </td>
                       <td className="py-3 text-center font-black">
                         {score.home ?? "-"} - {score.away ?? "-"}
                       </td>
-                      <td className="py-3 font-bold">{match.away || "Pendent"}</td>
+                      <td className="py-3 font-bold">
+                          <span className={match.round === "Setzens"
+                            ? round32TeamClass(match.away, match.id, item, real)
+                            : ""}>
+                            {match.away || "Pendent"}
+                          </span>
+                        </td>
                       <td className="py-3 font-bold text-emerald-300">{winner || "-"}</td>
                     </tr>
                   );
@@ -587,7 +658,7 @@ export default function PublicPredictionPage() {
 
           <section>
             <h2 className="mb-4 text-2xl font-black text-yellow-300">Eliminatories</h2>
-            <KnockoutView item={item} />
+            <KnockoutView item={item} real={real} />
           </section>
         </div>
       </section>
