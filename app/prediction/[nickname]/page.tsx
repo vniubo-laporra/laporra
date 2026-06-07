@@ -490,16 +490,24 @@ function round32TeamClass(
     realTables[group] = sortedCalculatedTable(real, group);
   });
 
-  const realBracket = buildPredictedBracket(realTables, real.knockout || []);
-  const realMatch = realBracket.find((m: any) => m.id === matchId);
+  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
+  const realRound32 = realBracket.filter((m: any) => m.round === "Setzens");
 
-  if (!realMatch) return "";
+  const realMatch = realRound32.find((m: any) => m.id === matchId);
 
-  if (realMatch[side] === predictedTeam) {
+  if (realMatch && realMatch[side] === predictedTeam) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
-  return "";
+  const qualifiedSomewhere = realRound32.some(
+    (m: any) => m.home === predictedTeam || m.away === predictedTeam
+  );
+
+  if (qualifiedSomewhere) {
+    return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+  }
+
+  return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
 }
 function KnockoutView({ item, real }: any) {
   const knockout = item.knockout || {};
