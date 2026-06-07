@@ -593,12 +593,16 @@ function KnockoutView({ item, real }: any) {
                             {match.home || "Pendent"}
                           </span>
                         </td>
-                      <td className={`py-3 text-center font-black rounded-xl border ${
-                        match.round === "Setzens"
-                          ? round32ResultClass(match, real)
-                          : ""
-                      }`}>
-                        {score.home ?? "-"} - {score.away ?? "-"}
+                      <td className="py-3 text-center font-black">
+                        <span
+                          className={`inline-flex min-w-[72px] items-center justify-center rounded-xl px-3 py-1 ${
+                            match.round === "Setzens"
+                              ? round32ResultClass(match, real)
+                              : ""
+                          }`}
+                        >
+                          {score.home ?? "-"} - {score.away ?? "-"}
+                        </span>
                       </td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
