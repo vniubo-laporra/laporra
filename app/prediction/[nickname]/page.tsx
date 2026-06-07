@@ -475,7 +475,7 @@ function getRealRound32Teams(real: any) {
   return buildPredictedBracket(tables, real.knockout || {});
 }
 
-function round32TeamClass(team: string | null, matchId: string, item: any, real: any) {
+function round32TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
   if (!team) return "";
   if (!allRealGroupsComplete(real)) return "";
 
@@ -488,21 +488,19 @@ function round32TeamClass(team: string | null, matchId: string, item: any, real:
   const realRound32 = buildPredictedBracket(realTables, real.knockout || {})
     .filter((m: any) => m.round === "Setzens");
 
-  if (!realRound32.length) return "";
+  const realSameSlot = realRound32.find((m: any) => m.id === matchId);
 
-  const realMatchForTeam = realRound32.find(
-    (m: any) => m.home === team || m.away === team
-  );
-
-  if (!realMatchForTeam) {
-    return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
-  }
-
-  if (realMatchForTeam.id === matchId) {
+  if (realSameSlot && realSameSlot[side] === team) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
-  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+  const realAnywhere = realRound32.find((m: any) => m.home === team || m.away === team);
+
+  if (realAnywhere) {
+    return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+  }
+
+  return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
 }
 function KnockoutView({ item, real }: any) {
   const knockout = item.knockout || {};
@@ -544,7 +542,7 @@ function KnockoutView({ item, real }: any) {
                       <td className="py-3 font-bold text-slate-500">{match.id}</td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round32TeamClass(match.home, match.id, item, real)
+                            ? round32TeamClass(match.home, match.id, "home", real)
                             : ""}>
                             {match.home || "Pendent"}
                           </span>
@@ -554,7 +552,7 @@ function KnockoutView({ item, real }: any) {
                       </td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round32TeamClass(match.away, match.id, item, real)
+                            ? round32TeamClass(match.away, match.id, "away", real)
                             : ""}>
                             {match.away || "Pendent"}
                           </span>
