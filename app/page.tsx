@@ -1,7 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { WORLD_CUP_GROUP_MATCHES } from "@/lib/worldCupSchedule";
 
+function CountdownBox() {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextMatch = WORLD_CUP_GROUP_MATCHES
+    .map((match) => ({ ...match, date: new Date(match.kickoff) }))
+    .filter((match) => match.date.getTime() > now.getTime())
+    .sort((a, b) => a.date.getTime() - b.date.getTime())[0];
+
+  if (!nextMatch) return null;
+
+  const diff = Math.max(0, nextMatch.date.getTime() - now.getTime());
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  return (
+    <div className="mt-10 rounded-3xl border border-yellow-500/40 bg-yellow-500/10 p-6">
+      <p className="mb-2 text-sm font-black uppercase tracking-[0.3em] text-yellow-300">
+        Proper partit del Mundial
+      </p>
+
+      <h2 className="text-2xl font-black text-white">
+        Grup {nextMatch.group}: {nextMatch.home} - {nextMatch.away}
+      </h2>
+
+      <p className="mt-2 text-slate-300">
+        {nextMatch.date.toLocaleString("ca-AD")}
+      </p>
+
+      <div className="mt-5 grid grid-cols-4 gap-3 text-center">
+        <div className="rounded-2xl bg-slate-950 p-4">
+          <div className="text-3xl font-black text-yellow-300">{days}</div>
+          <div className="text-xs font-bold text-slate-400">dies</div>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-4">
+          <div className="text-3xl font-black text-yellow-300">{hours}</div>
+          <div className="text-xs font-bold text-slate-400">hores</div>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-4">
+          <div className="text-3xl font-black text-yellow-300">{minutes}</div>
+          <div className="text-xs font-bold text-slate-400">min</div>
+        </div>
+        <div className="rounded-2xl bg-slate-950 p-4">
+          <div className="text-3xl font-black text-yellow-300">{seconds}</div>
+          <div className="text-xs font-bold text-slate-400">seg</div>
+        </div>
+      </div>
+    </div>
+  );
+}
 export default function HomePage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
@@ -21,6 +78,8 @@ export default function HomePage() {
             className="w-full cursor-pointer"
           />
         </a>
+
+        <CountdownBox />
 
         <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
   <h2 className="mb-4 text-3xl font-black text-yellow-300">
