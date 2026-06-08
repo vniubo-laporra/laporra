@@ -25,7 +25,7 @@ function CountdownBox() {
   const seconds = Math.floor((diff / 1000) % 60);
 
   return (
-    <div className="mt-10 rounded-3xl border border-yellow-500/40 bg-yellow-500/10 p-6">
+    <div className="rounded-3xl border border-yellow-500/30 bg-yellow-500/10 p-4">
       <p className="mb-2 text-sm font-black uppercase tracking-[0.3em] text-yellow-300">
         Proper partit del Mundial
       </p>
@@ -38,21 +38,21 @@ function CountdownBox() {
         {nextMatch.date.toLocaleString("ca-AD")}
       </p>
 
-      <div className="mt-5 grid grid-cols-4 gap-3 text-center">
+      <div className="mt-4 grid grid-cols-2 gap-2 text-center">
         <div className="rounded-2xl bg-slate-950 p-4">
-          <div className="text-3xl font-black text-yellow-300">{days}</div>
+          <div className="text-xl font-black text-yellow-300">{days}</div>
           <div className="text-xs font-bold text-slate-400">dies</div>
         </div>
         <div className="rounded-2xl bg-slate-950 p-4">
-          <div className="text-3xl font-black text-yellow-300">{hours}</div>
+          <div className="text-xl font-black text-yellow-300">{hours}</div>
           <div className="text-xs font-bold text-slate-400">hores</div>
         </div>
         <div className="rounded-2xl bg-slate-950 p-4">
-          <div className="text-3xl font-black text-yellow-300">{minutes}</div>
+          <div className="text-xl font-black text-yellow-300">{minutes}</div>
           <div className="text-xs font-bold text-slate-400">min</div>
         </div>
         <div className="rounded-2xl bg-slate-950 p-4">
-          <div className="text-3xl font-black text-yellow-300">{seconds}</div>
+          <div className="text-xl font-black text-yellow-300">{seconds}</div>
           <div className="text-xs font-bold text-slate-400">seg</div>
         </div>
       </div>
@@ -79,9 +79,16 @@ export default function HomePage() {
           />
         </a>
 
-        <CountdownBox />
+        
 
-        <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+        </div>
+
+    <div className="lg:sticky lg:top-6 h-fit">
+      <CountdownBox />
+    </div>
+  </div>
+
+  <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
   <h2 className="mb-4 text-3xl font-black text-yellow-300">
     Normativa de puntuacions
   </h2>
@@ -124,7 +131,14 @@ export default function HomePage() {
   </div>
 </div>
 
-<div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+</div>
+
+    <div className="lg:sticky lg:top-6 h-fit">
+      <CountdownBox />
+    </div>
+  </div>
+
+  <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="mb-2 text-3xl font-black text-yellow-300">
             Classificacio
           </h2>
