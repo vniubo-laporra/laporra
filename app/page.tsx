@@ -81,14 +81,7 @@ export default function HomePage() {
 
         
 
-        </div>
-
-    <div className="lg:sticky lg:top-6 h-fit">
-      <CountdownBox />
-    </div>
-  </div>
-
-  <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+        <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
   <h2 className="mb-4 text-3xl font-black text-yellow-300">
     Normativa de puntuacions
   </h2>
@@ -131,14 +124,7 @@ export default function HomePage() {
   </div>
 </div>
 
-</div>
-
-    <div className="lg:sticky lg:top-6 h-fit">
-      <CountdownBox />
-    </div>
-  </div>
-
-  <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+<div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="mb-2 text-3xl font-black text-yellow-300">
             Classificacio
           </h2>
