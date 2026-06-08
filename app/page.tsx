@@ -26,39 +26,82 @@ function CountdownBox() {
 
   return (
     <div className="rounded-3xl border border-yellow-500/30 bg-yellow-500/10 p-4">
-      <p className="mb-2 text-sm font-black uppercase tracking-[0.3em] text-yellow-300">
-        Proper partit del Mundial
+      <p className="mb-2 text-xs font-black uppercase tracking-[0.25em] text-yellow-300">
+        Proper partit
       </p>
 
-      <h2 className="text-2xl font-black text-white">
-        Grup {nextMatch.group}: {nextMatch.home} - {nextMatch.away}
+      <h2 className="text-lg font-black text-white">
+        Grup {nextMatch.group}
       </h2>
 
-      <p className="mt-2 text-slate-300">
+      <p className="mt-1 text-sm font-bold text-slate-200">
+        {nextMatch.home} - {nextMatch.away}
+      </p>
+
+      <p className="mt-1 text-xs text-slate-400">
         {nextMatch.date.toLocaleString("ca-AD")}
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-        <div className="rounded-2xl bg-slate-950 p-4">
+        <div className="rounded-2xl bg-slate-950 p-3">
           <div className="text-xl font-black text-yellow-300">{days}</div>
-          <div className="text-xs font-bold text-slate-400">dies</div>
+          <div className="text-[10px] font-bold text-slate-400">dies</div>
         </div>
-        <div className="rounded-2xl bg-slate-950 p-4">
+        <div className="rounded-2xl bg-slate-950 p-3">
           <div className="text-xl font-black text-yellow-300">{hours}</div>
-          <div className="text-xs font-bold text-slate-400">hores</div>
+          <div className="text-[10px] font-bold text-slate-400">hores</div>
         </div>
-        <div className="rounded-2xl bg-slate-950 p-4">
+        <div className="rounded-2xl bg-slate-950 p-3">
           <div className="text-xl font-black text-yellow-300">{minutes}</div>
-          <div className="text-xs font-bold text-slate-400">min</div>
+          <div className="text-[10px] font-bold text-slate-400">min</div>
         </div>
-        <div className="rounded-2xl bg-slate-950 p-4">
+        <div className="rounded-2xl bg-slate-950 p-3">
           <div className="text-xl font-black text-yellow-300">{seconds}</div>
-          <div className="text-xs font-bold text-slate-400">seg</div>
+          <div className="text-[10px] font-bold text-slate-400">seg</div>
         </div>
       </div>
     </div>
   );
 }
+
+function RulesBox() {
+  return (
+    <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6">
+      <h2 className="mb-4 text-3xl font-black text-yellow-300">
+        Normativa de puntuacions
+      </h2>
+
+      <div className="grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+        <div><b>1X2 fase de grups:</b> 3 punts</div>
+        <div><b>Gols un equip fase grups:</b> 2 punts</div>
+        <div><b>Resultat exacte fase grups:</b> 7 punts totals</div>
+        <div><b>Primer de grup:</b> 6 punts</div>
+        <div><b>Segon de grup:</b> 6 punts</div>
+        <div><b>Tercer de grup:</b> 3 punts</div>
+        <div><b>Tercer en posicio correcta del quadre:</b> 3 punts extra</div>
+        <div><b>Total punts equip fase grups:</b> 4 punts</div>
+        <div><b>Total gols equip fase grups:</b> 4 punts</div>
+        <div><b>Gols un equip a setzens:</b> 4 punts</div>
+        <div><b>Classificat a vuitens:</b> 6 punts</div>
+        <div><b>Classificat a vuitens en posicio correcta:</b> 6 punts</div>
+        <div><b>Gols d'un equip a vuitens:</b> 6 punts</div>
+        <div><b>Classificat a quarts:</b> 9 punts</div>
+        <div><b>Classificat a quarts en posicio correcta:</b> 9 punts</div>
+        <div><b>Gols d'un equip a quarts:</b> 8 punts</div>
+        <div><b>Semifinalista:</b> 12 punts</div>
+        <div><b>Semifinalista en posicio correcta:</b> 12 punts</div>
+        <div><b>Gols d'un equip a semifinal / 3r i 4t lloc:</b> 12 punts</div>
+        <div><b>Finalista:</b> 30 punts</div>
+        <div><b>Gols d'un equip a la final:</b> 25 punts</div>
+        <div><b>4t classificat:</b> 25 punts</div>
+        <div><b>3r classificat:</b> 30 punts</div>
+        <div><b>Subcampio:</b> 40 punts</div>
+        <div><b>Campio:</b> 60 punts</div>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
@@ -71,60 +114,21 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="mx-auto max-w-7xl px-6 py-8">
-        <a href="/identify" className="block overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl">
-          <img
-            src="/hero-laporra.png"
-            alt="laporra.ad"
-            className="w-full cursor-pointer"
-          />
-        </a>
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+          <a href="/identify" className="block overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl">
+            <img
+              src="/hero-laporra.png"
+              alt="laporra.ad"
+              className="w-full cursor-pointer"
+            />
+          </a>
 
-        
+          <aside className="h-fit lg:sticky lg:top-6">
+            <CountdownBox />
+          </aside>
+        </div>
 
         <div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
-  <h2 className="mb-4 text-3xl font-black text-yellow-300">
-    Normativa de puntuacions
-  </h2>
-
-  <div className="grid gap-2 text-sm text-slate-300 md:grid-cols-2">
-    <div><b>1X2 fase de grups:</b> 3 punts</div>
-    <div><b>Gols un equip fase grups:</b> 2 punts</div>
-    <div><b>Resultat exacte fase grups:</b> 7 punts totals</div>
-    <div><b>Primer de grup:</b> 6 punts</div>
-    <div><b>Segon de grup:</b> 6 punts</div>
-    <div><b>Tercer de grup:</b> 3 punts</div>
-    <div><b>Tercer en posicio correcta del quadre:</b> 3 punts extra</div>
-    <div><b>Total punts equip fase grups:</b> 4 punts</div>
-    <div><b>Total gols equip fase grups:</b> 4 punts</div>
-    <div><b>Gols un equip a setzens:</b> 4 punts</div>
-    <div><b>Classificat a vuitens:</b> 6 punts</div>
-    <div><b>Classificat a vuitens en posicio correcta:</b> 6 punts</div>
-    <div><b>Gols d'un equip a vuitens:</b> 6 punts</div>
-    <div><b>Classificat a quarts:</b> 9 punts</div>
-    <div><b>Classificat a quarts en posicio correcta:</b> 9 punts</div>
-    <div><b>Gols d'un equip a quarts:</b> 8 punts</div>
-    <div><b>Semifinalista:</b> 12 punts</div>
-    <div><b>Semifinalista en posicio correcta:</b> 12 punts</div>
-    <div><b>Gols d'un equip a semifinal / 3r i 4t lloc:</b> 12 punts</div>
-    <div><b>Finalista:</b> 30 punts</div>
-    <div><b>Gols d'un equip a la final:</b> 25 punts</div>
-    <div><b>4t classificat:</b> 25 punts</div>
-    <div><b>3r classificat:</b> 30 punts</div>
-    <div><b>Subcampio:</b> 40 punts</div>
-    <div><b>Campio:</b> 60 punts</div>
-  </div>
-
-  <div className="mt-6 rounded-2xl border border-yellow-500/40 bg-yellow-500/10 p-4">
-    <p className="font-bold text-yellow-300">
-      L'estructura de premis es publicara quan sapiguem quants usuaris s'han validat.
-    </p>
-    <p className="mt-2 text-sm text-slate-300">
-      El repartiment premiara els primers classificats.
-    </p>
-  </div>
-</div>
-
-<div className="mt-10 rounded-3xl border border-slate-800 bg-slate-900 p-6">
           <h2 className="mb-2 text-3xl font-black text-yellow-300">
             Classificacio
           </h2>
@@ -134,14 +138,14 @@ export default function HomePage() {
           </p>
 
           <div className="overflow-x-auto rounded-2xl border border-slate-800">
-            <table className="w-full min-w-[900px] text-sm">
+            <table className="w-full min-w-[1100px] text-sm">
               <thead className="bg-slate-800 text-slate-300">
                 <tr>
                   <th className="p-3 text-left">#</th>
                   <th className="p-3 text-left">Nickname</th>
                   <th className="p-3 text-center">Punts totals</th>
-                  <th className="p-3 text-center">Resultat 1X2 grups</th>
-                  <th className="p-3 text-center">Gols exactes equip</th>
+                  <th className="p-3 text-center">1X2 grups</th>
+                  <th className="p-3 text-center">Gols equip grups</th>
                   <th className="p-3 text-center">Punts equip grup</th>
                   <th className="p-3 text-center">Gols totals equip grup</th>
                   <th className="p-3 text-center">Classificat 1r/2n</th>
@@ -182,6 +186,10 @@ export default function HomePage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div className="mt-16">
+          <RulesBox />
         </div>
       </section>
     </main>
