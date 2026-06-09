@@ -9,8 +9,8 @@ import { getThirdPlaceBracket } from "@/lib/thirdPlaceMatrix";
 function getVisualMatchOrder(group: string) {
   const specialOrder: any = {
     B: ["B5", "B6", "B1", "B2", "B3", "B4"],
-    E: ["E5", "E6", "E1", "E2", "E3", "E4"],
-    F: ["F5", "F6", "F1", "F2", "F3", "F4"],
+    E: ["E1", "E2", "E5", "E6", "E3", "E4"],
+    F: ["F1", "F2", "F5", "F6", "F3", "F4"],
     K: ["K5", "K6", "K1", "K2", "K3", "K4"],
   };
 
