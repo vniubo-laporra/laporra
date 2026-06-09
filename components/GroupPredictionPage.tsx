@@ -386,7 +386,7 @@ export default function GroupPredictionPage({ group }: { group: string }) {
 
                 <div className="space-y-4">
                   {matches
-                    .filter((m) => m.jornada === jornada)
+                    .filter((m: any) => m.jornada === jornada)
                     .map((match) => (
                       <div
                         key={match.id}
