@@ -7,12 +7,42 @@ function buildMatches(group: string) {
   const teams = GROUPS[group];
 
   return [
-    { id: `${group}1`, jornada: 1, home: teams[0], away: teams[1] },
-    { id: `${group}2`, jornada: 1, home: teams[2], away: teams[3] },
-    { id: `${group}3`, jornada: 2, home: teams[0], away: teams[2] },
-    { id: `${group}4`, jornada: 2, home: teams[1], away: teams[3] },
-    { id: `${group}5`, jornada: 3, home: teams[0], away: teams[3] },
-    { id: `${group}6`, jornada: 3, home: teams[1], away: teams[2] },
+    {
+      id: `${group}1`,
+      jornada: 1,
+      home: teams[0],
+      away: teams[1],
+    },
+    {
+      id: `${group}2`,
+      jornada: 1,
+      home: teams[2],
+      away: teams[3],
+    },
+    {
+      id: `${group}3`,
+      jornada: 2,
+      home: teams[0],
+      away: teams[2],
+    },
+    {
+      id: `${group}4`,
+      jornada: 2,
+      home: teams[1],
+      away: teams[3],
+    },
+    {
+      id: `${group}5`,
+      jornada: 3,
+      home: teams[0],
+      away: teams[3],
+    },
+    {
+      id: `${group}6`,
+      jornada: 3,
+      home: teams[1],
+      away: teams[2],
+    },
   ];
 }
 function allMatchesCompleted(matches: any[], scores: any) {
