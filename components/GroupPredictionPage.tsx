@@ -4,18 +4,32 @@ import { useEffect, useMemo, useState } from "react";
 import { GROUPS, GROUP_LETTERS } from "@/lib/groupsData";
 
 function buildMatches(group: string) {
-  const t = GROUPS[group];
+  const teams = GROUPS[group];
 
-  return [
-    { id: `${group}1`, jornada: "Jornada 1", home: t[0], away: t[1] },
-    { id: `${group}2`, jornada: "Jornada 1", home: t[2], away: t[3] },
-    { id: `${group}3`, jornada: "Jornada 2", home: t[0], away: t[2] },
-    { id: `${group}4`, jornada: "Jornada 2", home: t[1], away: t[3] },
-    { id: `${group}5`, jornada: "Jornada 3", home: t[0], away: t[3] },
-    { id: `${group}6`, jornada: "Jornada 3", home: t[1], away: t[2] },
+  const matches: any[] = [
+    { id: `${group}1`, home: teams[0], away: teams[1] },
+    { id: `${group}2`, home: teams[2], away: teams[3] },
+    { id: `${group}3`, home: teams[0], away: teams[2] },
+    { id: `${group}4`, home: teams[1], away: teams[3] },
+    { id: `${group}5`, home: teams[0], away: teams[3] },
+    { id: `${group}6`, home: teams[1], away: teams[2] },
   ];
-}
 
+  const visualOrder: any = {
+    B: ["B5", "B6", "B1", "B2", "B3", "B4"],
+    E: ["E1", "E2", "E5", "E6", "E3", "E4"],
+    F: ["F1", "F2", "F5", "F6", "F3", "F4"],
+    K: ["K5", "K6", "K1", "K2", "K3", "K4"],
+  };
+
+  const order = visualOrder[group];
+
+  if (!order) return matches;
+
+  return order
+    .map((id: string) => matches.find((match) => match.id === id))
+    .filter(Boolean);
+}
 function allMatchesCompleted(matches: any[], scores: any) {
   return matches.every(
     (m) =>
