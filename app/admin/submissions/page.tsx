@@ -163,6 +163,39 @@ function GroupsView({ item }: any) {
 
 
 
+
+function getVisualMatchOrder(group: string) {
+  const specialOrder: any = {
+    B: ["B5", "B6", "B1", "B2", "B3", "B4"],
+    E: ["E5", "E6", "E1", "E2", "E3", "E4"],
+    F: ["F5", "F6", "F1", "F2", "F3", "F4"],
+    K: ["K5", "K6", "K1", "K2", "K3", "K4"],
+  };
+
+  return specialOrder[group] || [
+    `${group}1`,
+    `${group}2`,
+    `${group}3`,
+    `${group}4`,
+    `${group}5`,
+    `${group}6`,
+  ];
+}
+
+function sortMatchesByVisualOrder(group: string, entries: any[]) {
+  const order = getVisualMatchOrder(group);
+
+  return entries.sort(([a], [b]) => {
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
+
+    if (ia === -1 && ib === -1) return String(a).localeCompare(String(b));
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+
+    return ia - ib;
+  });
+}
 function getMatchInfo(group: string, matchId: string) {
   const teams = GROUPS[group];
   if (!teams) return null;
@@ -194,9 +227,10 @@ function GroupScoresView({ item }: any) {
           <div className="space-y-2 text-sm">
             {Object.entries(matches)
               .sort(([a], [b]) => {
-                const na = parseInt(a.replace(group, ""));
-                const nb = parseInt(b.replace(group, ""));
-                return na - nb;
+                const order = getVisualMatchOrder(group);
+                const ia = order.indexOf(a);
+                const ib = order.indexOf(b);
+                return ia - ib;
               })
               .map(([matchId, score]: any) => (
               <div
