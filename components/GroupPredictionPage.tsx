@@ -393,10 +393,10 @@ export default function GroupPredictionPage({ group }: { group: string }) {
 
         <div className="grid gap-8 lg:grid-cols-[1fr_420px]">
           <div>
-            {["Jornada 1", "Jornada 2", "Jornada 3"].map((jornada) => (
-              <div key={jornada} className="mb-8">
+            {[1, 2, 3].map((jornada) => (
+              <div key={`Jornada ${jornada}`} className="mb-8">
                 <h2 className="mb-4 text-2xl font-black text-yellow-300">
-                  {jornada}
+                  {`Jornada ${jornada}`}
                 </h2>
 
                 <div className="space-y-4">
