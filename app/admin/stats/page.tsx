@@ -75,6 +75,29 @@ export default function AdminStatsPage() {
               ))}
             </div>
 
+            <div className="mt-6 rounded-2xl bg-red-950/40 border border-red-800 p-4">
+              <p className="mb-2 text-sm font-black uppercase tracking-[0.2em] text-red-300">
+                Apostes valentes al 2
+              </p>
+
+              {stats.awayWinUsers.length === 0 ? (
+                <p className="text-sm text-slate-400">
+                  Ningú ha apostat per Sud-àfrica.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {stats.awayWinUsers.map((name: string) => (
+                    <span
+                      key={name}
+                      className="rounded-xl bg-red-900/60 px-3 py-2 text-sm font-black text-red-200"
+                    >
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="mt-6 rounded-2xl bg-slate-950 p-4 font-mono text-sm text-slate-300">
               1: {inaugural.percentages["1"]}% · X: {inaugural.percentages["X"]}% · 2: {inaugural.percentages["2"]}%
             </div>

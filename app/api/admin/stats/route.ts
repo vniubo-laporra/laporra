@@ -1,5 +1,32 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
+function detectChampion(sub: any) {
+  const final = sub?.knockout?.M104;
+
+  if (!final) return null;
+
+  if (final.advancer) {
+    return final.advancer;
+  }
+
+  if (
+    final.homeTeam &&
+    final.awayTeam &&
+    final.home !== undefined &&
+    final.away !== undefined &&
+    final.home !== "" &&
+    final.away !== ""
+  ) {
+    const h = Number(final.home);
+    const a = Number(final.away);
+
+    if (h > a) return final.homeTeam;
+    if (a > h) return final.awayTeam;
+  }
+
+  return null;
+}
+
 
 function isCompleteScore(score: any) {
   return score && score.home !== undefined && score.away !== undefined && score.home !== "" && score.away !== "";
@@ -42,6 +69,7 @@ export async function GET() {
   };
 
   const champions: Record<string, number> = {};
+  const awayWinUsers: string[] = [];
 
   submissions.forEach((sub: any) => {
     const score = sub?.groups?.A?.A1;
@@ -53,7 +81,12 @@ export async function GET() {
       inaugural.counts.empty += 1;
     }
 
-    const champion = sub?.knockout?.M104?.advancer;
+    if (pick === "2") {
+      awayWinUsers.push(sub.nickname);
+    }
+
+    const champion = detectChampion(sub);
+
     if (champion) {
       champions[champion] = (champions[champion] || 0) + 1;
     }
@@ -73,6 +106,8 @@ export async function GET() {
         empty: toPercent(inaugural.counts.empty),
       },
     },
+    awayWinUsers,
+
     champions: Object.entries(champions)
       .map(([team, count]) => ({
         team,
