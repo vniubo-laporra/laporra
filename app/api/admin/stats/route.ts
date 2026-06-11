@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getThirdPlaceBracket } from "@/lib/thirdPlaceMatrix";
+import { GROUPS } from "@/lib/groupsData";
 
 function isCompleteScore(score: any) {
   return score && score.home !== undefined && score.away !== undefined && score.home !== "" && score.away !== "";
@@ -21,6 +22,76 @@ function sameTeam(a: any, b: string) {
   return String(a || "").trim().toLowerCase() === b.trim().toLowerCase();
 }
 
+
+function getMatchInfo(group: string, matchId: string) {
+  const teams = GROUPS[group];
+
+  if (!teams) return null;
+
+  const matches: any = {
+    [`${group}1`]: { home: teams[0], away: teams[1] },
+    [`${group}2`]: { home: teams[2], away: teams[3] },
+    [`${group}3`]: { home: teams[0], away: teams[2] },
+    [`${group}4`]: { home: teams[1], away: teams[3] },
+    [`${group}5`]: { home: teams[0], away: teams[3] },
+    [`${group}6`]: { home: teams[1], away: teams[2] },
+  };
+
+  return matches[matchId];
+}
+
+function calculateGroupTableFromScores(source: any, group: string) {
+  const table: any = {};
+
+  GROUPS[group].forEach((team: string) => {
+    table[team] = {
+      team,
+      points: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      goalDiff: 0,
+    };
+  });
+
+  for (let i = 1; i <= 6; i++) {
+    const matchId = `${group}${i}`;
+
+    const match = getMatchInfo(group, matchId);
+    const score = source?.groups?.[group]?.[matchId];
+
+    if (!match || !isCompleteScore(score)) continue;
+
+    const h = Number(score.home);
+    const a = Number(score.away);
+
+    table[match.home].goalsFor += h;
+    table[match.home].goalsAgainst += a;
+
+    table[match.away].goalsFor += a;
+    table[match.away].goalsAgainst += h;
+
+    if (h > a) {
+      table[match.home].points += 3;
+    } else if (a > h) {
+      table[match.away].points += 3;
+    } else {
+      table[match.home].points += 1;
+      table[match.away].points += 1;
+    }
+  }
+
+  return Object.values(table)
+    .map((row: any) => ({
+      ...row,
+      goalDiff: row.goalsFor - row.goalsAgainst,
+    }))
+    .sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      return a.team.localeCompare(b.team);
+    });
+}
 function getWinner(match: any, scores: any) {
   if (!match || !match.home || !match.away) return null;
 
@@ -136,7 +207,13 @@ function buildPredictedBracket(tables: any, scores: any) {
 }
 
 function getTables(sub: any) {
-  return sub?.group_tables || sub?.groupTables || {};
+  const tables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    tables[group] = calculateGroupTableFromScores(sub, group);
+  });
+
+  return tables;
 }
 
 function detectChampion(sub: any) {
