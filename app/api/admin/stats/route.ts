@@ -222,37 +222,79 @@ function findSpainRound(sub: any) {
   const scores = sub?.knockout || {};
   const spain = "Spain";
 
-  const roundOrder = [
-    { name: "Setzens", ids: ["M73","M74","M75","M76","M77","M78","M79","M80","M81","M82","M83","M84","M85","M86","M87","M88"] },
-    { name: "Vuitens", ids: ["M89","M90","M91","M92","M93","M94","M95","M96"] },
-    { name: "Quarts", ids: ["M97","M98","M99","M100"] },
-    { name: "Semifinals", ids: ["M101","M102"] },
-    { name: "Final", ids: ["M104"] },
+  const rounds = [
+    {
+      label: "Setzens",
+      ids: [
+        "M73","M74","M75","M76",
+        "M77","M78","M79","M80",
+        "M81","M82","M83","M84",
+        "M85","M86","M87","M88"
+      ],
+      next: "Vuitens",
+    },
+    {
+      label: "Vuitens",
+      ids: [
+        "M89","M90","M91","M92",
+        "M93","M94","M95","M96"
+      ],
+      next: "Quarts",
+    },
+    {
+      label: "Quarts",
+      ids: ["M97","M98","M99","M100"],
+      next: "Semifinals",
+    },
+    {
+      label: "Semifinals",
+      ids: ["M101","M102"],
+      next: "Final",
+    },
   ];
 
-  for (const round of roundOrder) {
-    const match = bracket.find((m: any) =>
+  for (const round of rounds) {
+    const played = bracket.find((m: any) =>
       round.ids.includes(m.id) &&
-      (sameTeam(m.home, spain) || sameTeam(m.away, spain))
+      (
+        sameTeam(m.home, spain) ||
+        sameTeam(m.away, spain)
+      )
     );
 
-    if (!match) continue;
+    if (!played) continue;
 
-    const winner = getWinner(match, scores);
+    const winner = getWinner(played, scores);
 
-    if (match.id === "M104") {
-      if (winner && sameTeam(winner, spain)) return "Campiona";
-      return "Subcampiona";
+    if (!winner) {
+      return round.label;
     }
 
-    if (!winner || !sameTeam(winner, spain)) {
-      return round.name;
+    if (!sameTeam(winner, spain)) {
+      return round.label;
     }
+  }
+
+  const final = bracket.find((m: any) => m.id === "M104");
+
+  if (
+    final &&
+    (
+      sameTeam(final.home, spain) ||
+      sameTeam(final.away, spain)
+    )
+  ) {
+    const winner = getWinner(final, scores);
+
+    if (sameTeam(winner, spain)) {
+      return "Campiona";
+    }
+
+    return "Subcampiona";
   }
 
   return "Grups";
 }
-
 function detectChampion(sub: any) {
   const bracket = buildBracket(sub);
   const final = bracket.find((m: any) => m.id === "M104");
