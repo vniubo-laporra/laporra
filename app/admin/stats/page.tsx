@@ -134,7 +134,30 @@ export default function AdminStatsPage() {
               </div>
             )}
           </div>
+        
+        <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-900 p-6">
+          <h2 className="mb-4 text-2xl font-black text-yellow-300">
+            Prediccions Espanya
+          </h2>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {Object.entries(stats.spainStats).map(([round, count]: any) => (
+              <div
+                key={round}
+                className="flex items-center justify-between rounded-2xl bg-slate-950 p-4"
+              >
+                <span className="font-bold text-slate-300">
+                  {round}
+                </span>
+
+                <span className="font-black text-yellow-300">
+                  {count} usuaris
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+</div>
       </section>
     </main>
   );
