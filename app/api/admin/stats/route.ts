@@ -286,6 +286,7 @@ export async function GET() {
 
   const champions: Record<string, number> = {};
   const awayWinUsers: string[] = [];
+  const colombiaUsers: string[] = [];
 
   const spainStats: any = {
     Grups: 0,
@@ -312,8 +313,13 @@ export async function GET() {
     }
 
     const champion = detectChampion(sub);
+
     if (champion) {
       champions[champion] = (champions[champion] || 0) + 1;
+
+      if (sameTeam(champion, "Colombia")) {
+        colombiaUsers.push(sub.nickname);
+      }
     }
 
     const spainRound = findSpainRound(sub);
@@ -335,6 +341,7 @@ export async function GET() {
       },
     },
     awayWinUsers,
+    colombiaUsers,
     spainStats,
     champions: Object.entries(champions)
       .map(([team, count]) => ({
