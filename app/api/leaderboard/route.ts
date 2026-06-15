@@ -328,6 +328,224 @@ function scoreRound32ExactGoals(prediction: any, real: any) {
 
   return points;
 }
+
+
+function calculateGroupTableFromScores(source: any, group: string) {
+  const teams = GROUPS[group];
+  const table: any = {};
+
+  teams.forEach((team: string) => {
+    table[team] = {
+      team,
+      points: 0,
+      goalsFor: 0,
+      goalsAgainst: 0,
+      goalDiff: 0,
+    };
+  });
+
+  const matches = [
+    { id: `${group}1`, home: teams[0], away: teams[1] },
+    { id: `${group}2`, home: teams[2], away: teams[3] },
+    { id: `${group}3`, home: teams[0], away: teams[2] },
+    { id: `${group}4`, home: teams[1], away: teams[3] },
+    { id: `${group}5`, home: teams[0], away: teams[3] },
+    { id: `${group}6`, home: teams[1], away: teams[2] },
+  ];
+
+  matches.forEach((match) => {
+    const score = source?.groups?.[group]?.[match.id];
+
+    if (
+      !score ||
+      score.home === undefined ||
+      score.away === undefined ||
+      score.home === "" ||
+      score.away === ""
+    ) {
+      return;
+    }
+
+    const h = Number(score.home);
+    const a = Number(score.away);
+
+    table[match.home].goalsFor += h;
+    table[match.home].goalsAgainst += a;
+
+    table[match.away].goalsFor += a;
+    table[match.away].goalsAgainst += h;
+
+    if (h > a) {
+      table[match.home].points += 3;
+    } else if (a > h) {
+      table[match.away].points += 3;
+    } else {
+      table[match.home].points += 1;
+      table[match.away].points += 1;
+    }
+  });
+
+  return Object.values(table)
+    .map((row: any) => ({
+      ...row,
+      goalDiff: row.goalsFor - row.goalsAgainst,
+    }))
+    .sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+      return a.team.localeCompare(b.team);
+    });
+}
+
+
+function getWinner(match: any, scores: any) {
+  if (!match || !match.home || !match.away) return null;
+
+  const s = scores?.[match.id];
+
+  if (!s) return null;
+
+  const h = Number(s.home);
+  const a = Number(s.away);
+
+  if (h > a) return match.home;
+  if (a > h) return match.away;
+
+  return s.advancer || null;
+}
+
+function getLoser(match: any, scores: any) {
+  const winner = getWinner(match, scores);
+
+  if (!winner || !match) return null;
+
+  return winner === match.home
+    ? match.away
+    : match.home;
+}
+
+function resolveSlot(slot: string, tables: any) {
+  const pos = Number(slot[0]) - 1;
+  const group = slot[1];
+
+  return tables[group]?.[pos]?.team || null;
+}
+
+function getQualifiedThirdGroupsFromTables(tables: any) {
+  return Object.entries(tables)
+    .map(([group, table]: any) => {
+      const third = table?.[2];
+
+      if (!third) return null;
+
+      return {
+        group,
+        points: third.points,
+        goalDiff: third.goalDiff,
+        goalsFor: third.goalsFor,
+      };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => {
+      if (b.points !== a.points) return b.points - a.points;
+      if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+      if (b.goalsFor !== a.goalsFor) return b.goalsFor - a.goalsFor;
+
+      return String(a.group).localeCompare(String(b.group));
+    })
+    .slice(0, 8)
+    .map((x: any) => x.group);
+}
+
+function buildPredictedBracket(tables: any, scores: any) {
+  const thirdGroups = getQualifiedThirdGroupsFromTables(tables);
+
+  let matrix: any = {};
+
+  try {
+    matrix = getThirdPlaceBracket(thirdGroups).pairings;
+  } catch {
+    return [];
+  }
+
+  const round32 = [
+    { id: "M73", round: "Setzens", home: resolveSlot("2A", tables), away: resolveSlot("2B", tables) },
+    { id: "M74", round: "Setzens", home: resolveSlot("1E", tables), away: resolveSlot(matrix["1E"], tables) },
+    { id: "M75", round: "Setzens", home: resolveSlot("1F", tables), away: resolveSlot("2C", tables) },
+    { id: "M76", round: "Setzens", home: resolveSlot("1C", tables), away: resolveSlot("2F", tables) },
+    { id: "M77", round: "Setzens", home: resolveSlot("1I", tables), away: resolveSlot(matrix["1I"], tables) },
+    { id: "M78", round: "Setzens", home: resolveSlot("2E", tables), away: resolveSlot("2I", tables) },
+    { id: "M79", round: "Setzens", home: resolveSlot("1A", tables), away: resolveSlot(matrix["1A"], tables) },
+    { id: "M80", round: "Setzens", home: resolveSlot("1L", tables), away: resolveSlot(matrix["1L"], tables) },
+    { id: "M81", round: "Setzens", home: resolveSlot("1D", tables), away: resolveSlot(matrix["1D"], tables) },
+    { id: "M82", round: "Setzens", home: resolveSlot("1G", tables), away: resolveSlot(matrix["1G"], tables) },
+    { id: "M83", round: "Setzens", home: resolveSlot("2K", tables), away: resolveSlot("2L", tables) },
+    { id: "M84", round: "Setzens", home: resolveSlot("1H", tables), away: resolveSlot("2J", tables) },
+    { id: "M85", round: "Setzens", home: resolveSlot("1B", tables), away: resolveSlot(matrix["1B"], tables) },
+    { id: "M86", round: "Setzens", home: resolveSlot("1J", tables), away: resolveSlot("2H", tables) },
+    { id: "M87", round: "Setzens", home: resolveSlot("1K", tables), away: resolveSlot(matrix["1K"], tables) },
+    { id: "M88", round: "Setzens", home: resolveSlot("2D", tables), away: resolveSlot("2G", tables) },
+  ];
+
+  const byId = (list: any[], id: string) =>
+    list.find((m) => m.id === id);
+
+  const r16 = [
+    { id: "M89", round: "Vuitens", home: getWinner(byId(round32, "M74"), scores), away: getWinner(byId(round32, "M77"), scores) },
+    { id: "M90", round: "Vuitens", home: getWinner(byId(round32, "M73"), scores), away: getWinner(byId(round32, "M75"), scores) },
+    { id: "M91", round: "Vuitens", home: getWinner(byId(round32, "M76"), scores), away: getWinner(byId(round32, "M78"), scores) },
+    { id: "M92", round: "Vuitens", home: getWinner(byId(round32, "M79"), scores), away: getWinner(byId(round32, "M80"), scores) },
+    { id: "M93", round: "Vuitens", home: getWinner(byId(round32, "M83"), scores), away: getWinner(byId(round32, "M84"), scores) },
+    { id: "M94", round: "Vuitens", home: getWinner(byId(round32, "M81"), scores), away: getWinner(byId(round32, "M82"), scores) },
+    { id: "M95", round: "Vuitens", home: getWinner(byId(round32, "M86"), scores), away: getWinner(byId(round32, "M88"), scores) },
+    { id: "M96", round: "Vuitens", home: getWinner(byId(round32, "M85"), scores), away: getWinner(byId(round32, "M87"), scores) },
+  ];
+
+  return [...round32, ...r16];
+}
+
+function scoreQualifiedRound16(prediction: any, real: any) {
+  const predictedTables: any = {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    predictedTables[group] = calculateGroupTableFromScores(prediction, group);
+    realTables[group] = calculateGroupTableFromScores(real, group);
+  });
+
+  const predictedBracket = buildPredictedBracket(predictedTables, prediction?.knockout || {});
+  const realBracket = buildPredictedBracket(realTables, real?.knockout || {});
+
+  const predictedRound16 = predictedBracket.filter((m: any) => m.round === "Vuitens");
+  const realRound16 = realBracket.filter((m: any) => m.round === "Vuitens");
+
+  if (!realRound16.length) return 0;
+
+  const realTeams = realRound16.flatMap((m: any) => [m.home, m.away]).filter(Boolean);
+
+  let points = 0;
+
+  predictedRound16.forEach((match: any) => {
+    ["home", "away"].forEach((side) => {
+      const team = match[side];
+      if (!team) return;
+
+      const qualifies = realTeams.includes(team);
+      if (!qualifies) return;
+
+      points += 6;
+
+      const realSameMatch = realRound16.find((m: any) => m.id === match.id);
+
+      if (realSameMatch && (side === "home" ? realSameMatch.home : realSameMatch.away) === team) {
+        points += 6;
+      }
+    });
+  });
+
+  return points;
+}
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -369,6 +587,7 @@ export async function GET() {
       const puntsClassificatPrimerSegon = scoreQualifiedFirstSecond(prediction, real);
       const puntsTercersClassificats = scoreThirdsQualifiedAndSlot(prediction, real);
       const puntsGolsSetzens = scoreRound32ExactGoals(prediction, real);
+      const puntsClassificatVuitens = scoreQualifiedRound16(prediction, real);
 
       const total =
         punts1x2 +
@@ -377,7 +596,8 @@ export async function GET() {
         puntsGolsTotalsEquipGrup +
         puntsClassificatPrimerSegon +
         puntsTercersClassificats +
-        puntsGolsSetzens;
+        puntsGolsSetzens +
+        puntsClassificatVuitens;
 
       return {
         nickname: item.nickname,
@@ -389,6 +609,7 @@ export async function GET() {
         puntsClassificatPrimerSegon,
         puntsTercersClassificats,
         puntsGolsSetzens,
+        puntsClassificatVuitens,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
