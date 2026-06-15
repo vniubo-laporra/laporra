@@ -506,6 +506,21 @@ function buildPredictedBracket(tables: any, scores: any) {
 }
 
 function scoreQualifiedRound16(prediction: any, real: any) {
+
+  const round32Matches = [
+    "M73","M74","M75","M76",
+    "M77","M78","M79","M80",
+    "M81","M82","M83","M84",
+    "M85","M86","M87","M88"
+  ];
+
+  const hasAnyRealRound32Result = round32Matches.some((matchId) =>
+    isScoreComplete(real?.knockout?.[matchId])
+  );
+
+  if (!hasAnyRealRound32Result) {
+    return 0;
+  }
   const predictedTables: any = {};
   const realTables: any = {};
 
