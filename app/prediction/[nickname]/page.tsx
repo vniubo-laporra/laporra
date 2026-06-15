@@ -647,7 +647,7 @@ function KnockoutView({ item, real }: any) {
                       <td className="py-3 text-center font-black">
                         <span
                           className={`inline-flex min-w-[72px] items-center justify-center rounded-xl px-3 py-1 ${
-                            match.round === "Setzens"
+                            (match.round === "Setzens" || match.round === "Vuitens")
                               ? round32ResultClass(score, real?.knockout?.[match.id])
                               : ""
                           }`}
