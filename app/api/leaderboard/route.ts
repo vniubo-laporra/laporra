@@ -668,6 +668,7 @@ export async function GET() {
         puntsTercersClassificats,
         puntsGolsSetzens,
         puntsClassificatVuitens,
+        puntsGolsVuitens,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
