@@ -509,56 +509,8 @@ function getRealRound32Teams(real: any) {
   return buildPredictedBracket(tables, real.knockout || {});
 }
 
-function round16TeamClass(
-  team: string,
-  matchId: string,
-  side: "home" | "away",
-  predictedBracket: any[],
-  realBracket: any[]
-) {
-  if (!team) {
-    return "border-slate-800 bg-slate-900";
-  }
-
-  const realRound = realBracket.filter(
-    (m: any) => m.round === "Vuitens"
-  );
-
-  const realTeams = realRound.flatMap((m: any) => [
-    m.home,
-    m.away,
-  ]);
-
-  if (!realTeams.includes(team)) {
-    return "border-red-500/60 bg-red-500/10";
-  }
-
-  const sameMatch = realRound.find(
-    (m: any) => m.id === matchId
-  );
-
-  if (
-    sameMatch &&
-    (
-      side === "home"
-        ? sameMatch.home === team
-        : sameMatch.away === team
-    )
-  ) {
-    return "border-emerald-500/60 bg-emerald-500/10";
-  }
-
-  return "border-yellow-500/60 bg-yellow-500/10";
-}
-
-function round32TeamClass(
-  predictedTeam: string | null,
-  matchId: string,
-  side: "home" | "away",
-  real: any
-) {
-  if (!predictedTeam) return "";
-  if (!allRealGroupsComplete(real)) return "";
+function round16TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
+  if (!team) return "";
 
   const realTables: any = {};
 
@@ -567,68 +519,27 @@ function round32TeamClass(
   });
 
   const realBracket = buildPredictedBracket(realTables, real.knockout || {});
-  const realRound32 = realBracket.filter((m: any) => m.round === "Setzens");
+  const realRound16 = realBracket.filter((m: any) => m.round === "Vuitens");
 
-  const realMatch = realRound32.find((m: any) => m.id === matchId);
+  if (!realRound16.length) return "";
 
-  if (realMatch && realMatch[side] === predictedTeam) {
+  const realTeams = realRound16.flatMap((m: any) => [m.home, m.away]).filter(Boolean);
+
+  if (!realTeams.includes(team)) {
+    return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+  }
+
+  const realSameMatch = realRound16.find((m: any) => m.id === matchId);
+
+  if (
+    realSameMatch &&
+    (side === "home" ? realSameMatch.home === team : realSameMatch.away === team)
+  ) {
     return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
   }
 
-  const qualifiedSomewhere = realRound32.some(
-    (m: any) => m.home === predictedTeam || m.away === predictedTeam
-  );
-
-  if (qualifiedSomewhere) {
-    return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
-  }
-
-  return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
 }
-
-
-function round16QualifiedClass(
-  team: string,
-  matchId: string,
-  side: "home" | "away",
-  predictedBracket: any[],
-  realBracket: any[]
-) {
-  if (!team) {
-    return "border-slate-800 bg-slate-900";
-  }
-
-  const realRound16 = realBracket.filter(
-    (m: any) => m.round === "Vuitens"
-  );
-
-  const realTeams = realRound16.flatMap((m: any) => [
-    m.home,
-    m.away,
-  ]);
-
-  const qualified = realTeams.includes(team);
-
-  if (!qualified) {
-    return "border-red-500/60 bg-red-500/10";
-  }
-
-  const sameMatch = realRound16.find(
-    (m: any) => m.id === matchId
-  );
-
-  if (
-    sameMatch &&
-    (side === "home"
-      ? sameMatch.home === team
-      : sameMatch.away === team)
-  ) {
-    return "border-emerald-500/60 bg-emerald-500/10";
-  }
-
-  return "border-yellow-500/60 bg-yellow-500/10";
-}
-
 function round32ResultClass(predictedScore: any, realScore: any) {
   if (!isCompleteScore(realScore)) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
@@ -691,8 +602,10 @@ function KnockoutView({ item, real }: any) {
                       <td className="py-3 font-bold text-slate-500">{match.id}</td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round32TeamClass(match.home, match.id, "home", real)
-                            : ""}>
+                            ? round16TeamClass(match.home, match.id, "home", real)
+                            : match.round === "Vuitens"
+                              ? round16TeamClass(match.home, match.id, "home", real)
+                              : ""}>
                             {match.home || "Pendent"}
                           </span>
                         </td>
@@ -709,8 +622,10 @@ function KnockoutView({ item, real }: any) {
                       </td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round32TeamClass(match.away, match.id, "away", real)
-                            : ""}>
+                            ? round16TeamClass(match.away, match.id, "away", real)
+                            : match.round === "Vuitens"
+                              ? round16TeamClass(match.away, match.id, "away", real)
+                              : ""}>
                             {match.away || "Pendent"}
                           </span>
                         </td>
