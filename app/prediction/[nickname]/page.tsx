@@ -509,6 +509,41 @@ function getRealRound32Teams(real: any) {
   return buildPredictedBracket(tables, real.knockout || {});
 }
 
+
+function round32TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
+  if (!team) return "";
+
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
+  const realRound32 = realBracket.filter((m: any) => m.round === "Setzens");
+
+  if (!realRound32.length) return "";
+
+  const realTeams = realRound32.flatMap((m: any) => [m.home, m.away]).filter(Boolean);
+
+  if (!realTeams.includes(team)) {
+    return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
+  }
+
+  const realSameMatch = realRound32.find((m: any) => m.id === matchId);
+
+  if (
+    realSameMatch &&
+    (side === "home"
+      ? realSameMatch.home === team
+      : realSameMatch.away === team)
+  ) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+}
+
 function round16TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
   if (!team) return "";
 
@@ -602,7 +637,7 @@ function KnockoutView({ item, real }: any) {
                       <td className="py-3 font-bold text-slate-500">{match.id}</td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round16TeamClass(match.home, match.id, "home", real)
+                            ? round32TeamClass(match.home, match.id, "home", real)
                             : match.round === "Vuitens"
                               ? round16TeamClass(match.home, match.id, "home", real)
                               : ""}>
@@ -622,7 +657,7 @@ function KnockoutView({ item, real }: any) {
                       </td>
                       <td className="py-3 font-bold">
                           <span className={match.round === "Setzens"
-                            ? round16TeamClass(match.away, match.id, "away", real)
+                            ? round32TeamClass(match.away, match.id, "away", real)
                             : match.round === "Vuitens"
                               ? round16TeamClass(match.away, match.id, "away", real)
                               : ""}>
