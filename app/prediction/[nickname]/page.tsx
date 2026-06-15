@@ -544,6 +544,49 @@ function round32TeamClass(
   return "rounded-lg bg-red-500/20 px-2 py-1 text-red-300";
 }
 
+
+function round16QualifiedClass(
+  team: string,
+  matchId: string,
+  side: "home" | "away",
+  predictedBracket: any[],
+  realBracket: any[]
+) {
+  if (!team) {
+    return "border-slate-800 bg-slate-900";
+  }
+
+  const realRound16 = realBracket.filter(
+    (m: any) => m.round === "Vuitens"
+  );
+
+  const realTeams = realRound16.flatMap((m: any) => [
+    m.home,
+    m.away,
+  ]);
+
+  const qualified = realTeams.includes(team);
+
+  if (!qualified) {
+    return "border-red-500/60 bg-red-500/10";
+  }
+
+  const sameMatch = realRound16.find(
+    (m: any) => m.id === matchId
+  );
+
+  if (
+    sameMatch &&
+    (side === "home"
+      ? sameMatch.home === team
+      : sameMatch.away === team)
+  ) {
+    return "border-emerald-500/60 bg-emerald-500/10";
+  }
+
+  return "border-yellow-500/60 bg-yellow-500/10";
+}
+
 function round32ResultClass(predictedScore: any, realScore: any) {
   if (!isCompleteScore(realScore)) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
