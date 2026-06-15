@@ -509,6 +509,48 @@ function getRealRound32Teams(real: any) {
   return buildPredictedBracket(tables, real.knockout || {});
 }
 
+function round16TeamClass(
+  team: string,
+  matchId: string,
+  side: "home" | "away",
+  predictedBracket: any[],
+  realBracket: any[]
+) {
+  if (!team) {
+    return "border-slate-800 bg-slate-900";
+  }
+
+  const realRound = realBracket.filter(
+    (m: any) => m.round === "Vuitens"
+  );
+
+  const realTeams = realRound.flatMap((m: any) => [
+    m.home,
+    m.away,
+  ]);
+
+  if (!realTeams.includes(team)) {
+    return "border-red-500/60 bg-red-500/10";
+  }
+
+  const sameMatch = realRound.find(
+    (m: any) => m.id === matchId
+  );
+
+  if (
+    sameMatch &&
+    (
+      side === "home"
+        ? sameMatch.home === team
+        : sameMatch.away === team
+    )
+  ) {
+    return "border-emerald-500/60 bg-emerald-500/10";
+  }
+
+  return "border-yellow-500/60 bg-yellow-500/10";
+}
+
 function round32TeamClass(
   predictedTeam: string | null,
   matchId: string,
