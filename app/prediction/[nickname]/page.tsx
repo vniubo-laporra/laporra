@@ -513,6 +513,10 @@ function getRealRound32Teams(real: any) {
 function round32TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
   if (!team) return "";
 
+  if (!allRealGroupsComplete(real)) {
+    return "";
+  }
+
   const realTables: any = {};
 
   Object.keys(GROUPS).forEach((group) => {
@@ -546,6 +550,27 @@ function round32TeamClass(team: string | null, matchId: string, side: "home" | "
 
 function round16TeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
   if (!team) return "";
+
+  const previousRoundMap: any = {
+    M89: ["M74", "M77"],
+    M90: ["M73", "M75"],
+    M91: ["M76", "M78"],
+    M92: ["M79", "M80"],
+    M93: ["M83", "M84"],
+    M94: ["M81", "M82"],
+    M95: ["M86", "M88"],
+    M96: ["M85", "M87"],
+  };
+
+  const previousMatches = previousRoundMap[matchId] || [];
+
+  const confirmed = previousMatches.every((id: string) =>
+    isCompleteScore(real?.knockout?.[id])
+  );
+
+  if (!confirmed) {
+    return "";
+  }
 
   const realTables: any = {};
 
