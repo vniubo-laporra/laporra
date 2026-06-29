@@ -330,6 +330,48 @@ function scoreRound32ExactGoals(prediction: any, real: any) {
 }
 
 
+
+function scoreRound16ExactGoals(prediction: any, real: any) {
+  let points = 0;
+
+  const matches = [
+    "M89","M90","M91","M92",
+    "M93","M94","M95","M96"
+  ];
+
+  const hasValue = (v: any) =>
+    v !== undefined &&
+    v !== null &&
+    v !== "";
+
+  matches.forEach((matchId) => {
+
+    const predicted = prediction?.knockout?.[matchId];
+    const realMatch = real?.knockout?.[matchId];
+
+    if (!predicted || !realMatch) return;
+
+    if (
+      hasValue(predicted.home) &&
+      hasValue(realMatch.home) &&
+      Number(predicted.home) === Number(realMatch.home)
+    ) {
+      points += 6;
+    }
+
+    if (
+      hasValue(predicted.away) &&
+      hasValue(realMatch.away) &&
+      Number(predicted.away) === Number(realMatch.away)
+    ) {
+      points += 6;
+    }
+
+  });
+
+  return points;
+}
+
 function calculateGroupTableFromScores(source: any, group: string) {
   const teams = GROUPS[group];
   const table: any = {};
@@ -506,21 +548,6 @@ function buildPredictedBracket(tables: any, scores: any) {
 }
 
 function scoreQualifiedRound16(prediction: any, real: any) {
-
-  const round32Matches = [
-    "M73","M74","M75","M76",
-    "M77","M78","M79","M80",
-    "M81","M82","M83","M84",
-    "M85","M86","M87","M88"
-  ];
-
-  const hasAnyRealRound32Result = round32Matches.some((matchId) =>
-    isScoreComplete(real?.knockout?.[matchId])
-  );
-
-  if (!hasAnyRealRound32Result) {
-    return 0;
-  }
   const predictedTables: any = {};
   const realTables: any = {};
 
@@ -535,25 +562,32 @@ function scoreQualifiedRound16(prediction: any, real: any) {
   const predictedRound16 = predictedBracket.filter((m: any) => m.round === "Vuitens");
   const realRound16 = realBracket.filter((m: any) => m.round === "Vuitens");
 
-  if (!realRound16.length) return 0;
+  const confirmedRealTeams = realRound16
+    .flatMap((m: any) => [m.home, m.away])
+    .filter(Boolean);
 
-  const realTeams = realRound16.flatMap((m: any) => [m.home, m.away]).filter(Boolean);
+  if (!confirmedRealTeams.length) return 0;
 
   let points = 0;
 
   predictedRound16.forEach((match: any) => {
+    const realSameMatch = realRound16.find((m: any) => m.id === match.id);
+
     ["home", "away"].forEach((side) => {
-      const team = match[side];
-      if (!team) return;
+      const predictedTeam = side === "home" ? match.home : match.away;
+      if (!predictedTeam) return;
 
-      const qualifies = realTeams.includes(team);
-      if (!qualifies) return;
+      const realTeamSameSlot = realSameMatch
+        ? side === "home"
+          ? realSameMatch.home
+          : realSameMatch.away
+        : null;
 
-      points += 6;
+      if (confirmedRealTeams.includes(predictedTeam)) {
+        points += 6;
+      }
 
-      const realSameMatch = realRound16.find((m: any) => m.id === match.id);
-
-      if (realSameMatch && (side === "home" ? realSameMatch.home : realSameMatch.away) === team) {
+      if (realTeamSameSlot && realTeamSameSlot === predictedTeam) {
         points += 6;
       }
     });
@@ -561,47 +595,6 @@ function scoreQualifiedRound16(prediction: any, real: any) {
 
   return points;
 }
-
-function scoreRound16ExactGoals(prediction: any, real: any) {
-  let points = 0;
-
-  const matches = [
-    "M89","M90","M91","M92",
-    "M93","M94","M95","M96"
-  ];
-
-  function hasValue(value: any) {
-    return value !== undefined &&
-      value !== null &&
-      value !== "";
-  }
-
-  matches.forEach((matchId) => {
-    const predicted = prediction?.knockout?.[matchId];
-    const realMatch = real?.knockout?.[matchId];
-
-    if (!predicted || !realMatch) return;
-
-    if (
-      hasValue(predicted.home) &&
-      hasValue(realMatch.home) &&
-      Number(predicted.home) === Number(realMatch.home)
-    ) {
-      points += 6;
-    }
-
-    if (
-      hasValue(predicted.away) &&
-      hasValue(realMatch.away) &&
-      Number(predicted.away) === Number(realMatch.away)
-    ) {
-      points += 6;
-    }
-  });
-
-  return points;
-}
-
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
