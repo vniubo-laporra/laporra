@@ -448,6 +448,15 @@ function getWinner(match: any, scores: any) {
 
   if (!s) return null;
 
+  if (
+    s.home === undefined ||
+    s.home === "" ||
+    s.away === undefined ||
+    s.away === ""
+  ) {
+    return null;
+  }
+
   const h = Number(s.home);
   const a = Number(s.away);
 
