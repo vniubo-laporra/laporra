@@ -113,7 +113,70 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto max-w-7xl px-6 py-8">
+              <style>{`
+          .leaderboard-table {
+            width: max-content;
+            min-width: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+            font-size: 11px;
+          }
+
+          .leaderboard-table th,
+          .leaderboard-table td {
+            width: 42px;
+            min-width: 42px;
+            max-width: 42px;
+            padding: 6px 4px;
+            text-align: center;
+            line-height: 1.1;
+            white-space: normal;
+          }
+
+          .leaderboard-table th:nth-child(1),
+          .leaderboard-table td:nth-child(1) {
+            position: sticky;
+            left: 0;
+            z-index: 30;
+            width: 38px;
+            min-width: 38px;
+            max-width: 38px;
+            background: rgb(2 6 23);
+          }
+
+          .leaderboard-table th:nth-child(2),
+          .leaderboard-table td:nth-child(2) {
+            position: sticky;
+            left: 38px;
+            z-index: 25;
+            width: max-content;
+            min-width: max-content;
+            max-width: none;
+            white-space: nowrap;
+            text-align: left;
+            background: rgb(2 6 23);
+            box-shadow: 8px 0 12px -10px rgba(0,0,0,.8);
+          }
+
+          .leaderboard-table th:nth-child(3),
+          .leaderboard-table td:nth-child(3) {
+            width: 50px;
+            min-width: 50px;
+            max-width: 50px;
+            font-weight: 900;
+          }
+
+          .leaderboard-table th {
+            font-size: 10px;
+            vertical-align: bottom;
+          }
+
+          .leaderboard-table td {
+            font-size: 12px;
+          }
+        `}</style>
+        <section className="mx-auto max-w-7xl px-6 py-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           <a href="/identify" className="block overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-2xl">
             <img
@@ -139,7 +202,7 @@ export default function HomePage() {
 
           <div className="overflow-x-auto [&_table]:border-separate [&_table]:border-spacing-0 rounded-2xl border border-slate-800">
             <div className="overflow-x-auto [&_table]:border-separate [&_table]:border-spacing-0 rounded-3xl border border-slate-800">
-              <table className="min-w-[1900px] w-full min-w-[1100px] text-sm">
+              <table className="min-w-[1900px] w-full min-w-[1100px] text-sm leaderboard-table">
               <thead className="bg-slate-800 text-slate-300">
                 <tr>
                   <th className="sticky left-0 z-20 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">#</th>
