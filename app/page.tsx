@@ -158,6 +158,8 @@ export default function HomePage() {
                   <th className="p-3 text-center">Gols quarts</th>
                   <th className="p-3 text-center">Classificat semis</th>
                   <th className="p-3 text-center">Gols semis</th>
+                  <th className="p-3 text-center">Finalista</th>
+                  <th className="p-3 text-center">Gols 3r lloc</th>
                 </tr>
               </thead>
 
