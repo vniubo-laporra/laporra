@@ -156,6 +156,7 @@ export default function HomePage() {
                   <th className="p-3 text-center">Classificat 4ts</th>
                   <th className="p-3 text-center">Gols quarts</th>
                   <th className="p-3 text-center">Classificat semis</th>
+                  <th className="p-3 text-center">Gols semis</th>
                 </tr>
               </thead>
 
@@ -183,12 +184,13 @@ export default function HomePage() {
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsClassificatQuarts}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsQuarts}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsClassificatSemis}</td>
+                    <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsSemis}</td>
                   </tr>
                 ))}
 
                 {leaderboard.length === 0 && (
                   <tr>
-                    <td colSpan={15} className="p-6 text-center text-slate-400">
+                    <td colSpan={16} className="p-6 text-center text-slate-400">
                       Encara no hi ha prediccions validades.
                     </td>
                   </tr>
