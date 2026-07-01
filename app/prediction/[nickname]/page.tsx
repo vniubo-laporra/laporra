@@ -632,6 +632,40 @@ function quarterTeamClass(team: string | null, matchId: string, side: "home" | "
 
   return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
 }
+
+function semifinalTeamClass(team: string | null, matchId: string, side: "home" | "away", real: any) {
+  if (!team) return "";
+
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
+  const realSemis = realBracket.filter((m: any) => m.round === "Semifinals");
+
+  const confirmedTeams = realSemis
+    .flatMap((m: any) => [m.home, m.away])
+    .filter(Boolean);
+
+  if (!confirmedTeams.includes(team)) {
+    return "";
+  }
+
+  const realSameMatch = realSemis.find((m: any) => m.id === matchId);
+
+  if (
+    realSameMatch &&
+    (side === "home"
+      ? realSameMatch.home === team
+      : realSameMatch.away === team)
+  ) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+}
 function round32ResultClass(predictedScore: any, realScore: any) {
   if (!isCompleteScore(realScore)) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
@@ -699,14 +733,16 @@ function KnockoutView({ item, real }: any) {
                               ? round16TeamClass(match.home, match.id, "home", real)
                               : match.round === "Quarts"
                                 ? quarterTeamClass(match.home, match.id, "home", real)
-                                : ""}>
+                                : match.round === "Semifinals"
+                                  ? semifinalTeamClass(match.home, match.id, "home", real)
+                                  : ""}>
                             {match.home || "Pendent"}
                           </span>
                         </td>
                       <td className="py-3 text-center font-black">
                         <span
                           className={`inline-flex min-w-[72px] items-center justify-center rounded-xl px-3 py-1 ${
-                            (match.round === "Setzens" || match.round === "Vuitens" || match.round === "Quarts")
+                            (match.round === "Setzens" || match.round === "Vuitens" || match.round === "Quarts" || match.round === "Semifinals")
                               ? round32ResultClass(score, real?.knockout?.[match.id])
                               : ""
                           }`}
@@ -721,7 +757,9 @@ function KnockoutView({ item, real }: any) {
                               ? round16TeamClass(match.away, match.id, "away", real)
                               : match.round === "Quarts"
                                 ? quarterTeamClass(match.away, match.id, "away", real)
-                                : ""}>
+                                : match.round === "Semifinals"
+                                  ? semifinalTeamClass(match.away, match.id, "away", real)
+                                  : ""}>
                             {match.away || "Pendent"}
                           </span>
                         </td>
