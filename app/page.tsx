@@ -143,7 +143,7 @@ export default function HomePage() {
               <thead className="bg-slate-800 text-slate-300">
                 <tr>
                   <th className="sticky left-0 z-20 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">#</th>
-                  <th className="sticky left-14 z-30 w-56 min-w-56 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">Nickname</th>
+                  <th className="sticky left-12 z-30 whitespace-nowrap px-3 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">Nickname</th>
                   <th className="p-3 text-center">Punts totals</th>
                   <th className="p-3 text-center">1X2 grups</th>
                   <th className="p-3 text-center">Gols equip grups</th>
@@ -166,9 +166,9 @@ export default function HomePage() {
               <tbody>
                 {leaderboard.map((row, index) => (
                   <tr key={row.nickname} className="border-t border-slate-800">
-                    <td className="sticky left-0 z-30 w-14 min-w-14 bg-slate-950 p-3 font-black text-slate-400">{index + 1}</td>
+                    <td className="sticky left-0 z-30 w-12 min-w-12 bg-slate-950 p-3 font-black text-slate-400">{index + 1}</td>
 
-                    <td className="sticky left-14 z-20 w-56 min-w-56 bg-slate-950 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 font-black text-yellow-300">
+                    <td className="sticky left-12 z-20 whitespace-nowrap px-3 bg-slate-950 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 font-black text-yellow-300">
                       <a href={`/prediction/${encodeURIComponent(row.nickname)}`} className="hover:underline">
                         {row.nickname}
                       </a>
