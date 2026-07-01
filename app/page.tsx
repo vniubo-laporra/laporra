@@ -138,11 +138,12 @@ export default function HomePage() {
           </p>
 
           <div className="overflow-x-auto rounded-2xl border border-slate-800">
-            <table className="w-full min-w-[1100px] text-sm">
+            <div className="overflow-x-auto rounded-3xl border border-slate-800">
+              <table className="min-w-[1900px] w-full min-w-[1100px] text-sm">
               <thead className="bg-slate-800 text-slate-300">
                 <tr>
-                  <th className="p-3 text-left">#</th>
-                  <th className="p-3 text-left">Nickname</th>
+                  <th className="sticky left-0 z-20 bg-slate-900 p-3 text-left">#</th>
+                  <th className="sticky left-0 z-20 bg-slate-900 p-3 text-left">Nickname</th>
                   <th className="p-3 text-center">Punts totals</th>
                   <th className="p-3 text-center">1X2 grups</th>
                   <th className="p-3 text-center">Gols equip grups</th>
@@ -199,6 +200,7 @@ export default function HomePage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
 
