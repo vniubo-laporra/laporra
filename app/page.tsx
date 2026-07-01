@@ -223,7 +223,8 @@ export default function HomePage() {
                   <th className="w-10 min-w-10 p-1 text-center whitespace-nowrap">Gols semis</th>
                   <th className="w-10 min-w-10 p-1 text-center whitespace-nowrap">Finalista</th>
                   <th className="w-10 min-w-10 p-1 text-center whitespace-nowrap">Gols 3r lloc</th>
-                </tr>
+                                  <th className="p-3 text-center">Gols final</th>
+</tr>
               </thead>
 
               <tbody>
