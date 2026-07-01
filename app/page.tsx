@@ -91,7 +91,7 @@ function RulesBox() {
         <div><b>Semifinalista:</b> 12 punts</div>
         <div><b>Semifinalista en posicio correcta:</b> 12 punts</div>
         <div><b>Gols d'un equip a semifinal / 3r i 4t lloc:</b> 12 punts</div>
-        <div><b>Finalista:</b> 30 punts</div>
+        <div><b>Finalista:</b> 16 punts + 16 punts si és en posició correcta</div>
         <div><b>Gols d'un equip a la final:</b> 25 punts</div>
         <div><b>4t classificat:</b> 25 punts</div>
         <div><b>3r classificat:</b> 30 punts</div>
@@ -185,12 +185,13 @@ export default function HomePage() {
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsQuarts}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsClassificatSemis}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsSemis}</td>
+                    <td className="p-3 text-center font-bold text-slate-300">{row.puntsFinalistes}</td>
                   </tr>
                 ))}
 
                 {leaderboard.length === 0 && (
                   <tr>
-                    <td colSpan={16} className="p-6 text-center text-slate-400">
+                    <td colSpan={17} className="p-6 text-center text-slate-400">
                       Encara no hi ha prediccions validades.
                     </td>
                   </tr>

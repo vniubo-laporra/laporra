@@ -666,6 +666,35 @@ function semifinalTeamClass(team: string | null, matchId: string, side: "home" |
 
   return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
 }
+
+function finalTeamClass(team: string | null, side: "home" | "away", real: any) {
+  if (!team) return "";
+
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    realTables[group] = sortedCalculatedTable(real, group);
+  });
+
+  const realBracket = buildPredictedBracket(realTables, real.knockout || {});
+  const realFinal = realBracket.find((m: any) => m.id === "M104");
+
+  if (!realFinal) return "";
+
+  const confirmedTeams = [realFinal.home, realFinal.away].filter(Boolean);
+
+  if (!confirmedTeams.includes(team)) {
+    return "";
+  }
+
+  const realTeamSameSlot = side === "home" ? realFinal.home : realFinal.away;
+
+  if (realTeamSameSlot === team) {
+    return "rounded-lg bg-emerald-500/20 px-2 py-1 text-emerald-300";
+  }
+
+  return "rounded-lg bg-yellow-500/20 px-2 py-1 text-yellow-300";
+}
 function round32ResultClass(predictedScore: any, realScore: any) {
   if (!isCompleteScore(realScore)) {
     return "bg-slate-900 text-slate-400 border border-slate-800";
@@ -735,7 +764,9 @@ function KnockoutView({ item, real }: any) {
                                 ? quarterTeamClass(match.home, match.id, "home", real)
                                 : match.round === "Semifinals"
                                   ? semifinalTeamClass(match.home, match.id, "home", real)
-                                  : ""}>
+                                  : match.round === "Final"
+                                    ? finalTeamClass(match.home, "home", real)
+                                    : ""}>
                             {match.home || "Pendent"}
                           </span>
                         </td>
@@ -759,7 +790,9 @@ function KnockoutView({ item, real }: any) {
                                 ? quarterTeamClass(match.away, match.id, "away", real)
                                 : match.round === "Semifinals"
                                   ? semifinalTeamClass(match.away, match.id, "away", real)
-                                  : ""}>
+                                  : match.round === "Final"
+                                    ? finalTeamClass(match.away, "away", real)
+                                    : ""}>
                             {match.away || "Pendent"}
                           </span>
                         </td>

@@ -565,7 +565,11 @@ function buildPredictedBracket(tables: any, scores: any) {
     { id: "M102", round: "Semifinals", home: getWinner(byId(quarters, "M99"), scores), away: getWinner(byId(quarters, "M100"), scores) },
   ];
 
-  return [...round32, ...r16, ...quarters, ...semis];
+  const final = [
+    { id: "M104", round: "Final", home: getWinner(byId(semis, "M101"), scores), away: getWinner(byId(semis, "M102"), scores) },
+  ];
+
+  return [...round32, ...r16, ...quarters, ...semis, ...final];
 }
 
 function scoreQualifiedRound16(prediction: any, real: any) {
@@ -790,6 +794,48 @@ function scoreSemifinalExactGoals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreQualifiedFinalists(prediction: any, real: any) {
+  const predictedTables: any = {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    predictedTables[group] = calculateGroupTableFromScores(prediction, group);
+    realTables[group] = calculateGroupTableFromScores(real, group);
+  });
+
+  const predictedBracket = buildPredictedBracket(predictedTables, prediction?.knockout || {});
+  const realBracket = buildPredictedBracket(realTables, real?.knockout || {});
+
+  const predictedFinal = predictedBracket.find((m: any) => m.id === "M104");
+  const realFinal = realBracket.find((m: any) => m.id === "M104");
+
+  if (!predictedFinal || !realFinal) return 0;
+
+  const realTeams = [realFinal.home, realFinal.away].filter(Boolean);
+
+  if (!realTeams.length) return 0;
+
+  let points = 0;
+
+  ["home", "away"].forEach((side) => {
+    const predictedTeam = side === "home" ? predictedFinal.home : predictedFinal.away;
+    if (!predictedTeam) return;
+
+    const realTeamSameSlot = side === "home" ? realFinal.home : realFinal.away;
+
+    if (realTeams.includes(predictedTeam)) {
+      points += 16;
+    }
+
+    if (realTeamSameSlot && realTeamSameSlot === predictedTeam) {
+      points += 16;
+    }
+  });
+
+  return points;
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -837,6 +883,7 @@ export async function GET() {
       const puntsGolsQuarts = scoreQuarterfinalExactGoals(prediction, real);
       const puntsClassificatSemis = scoreQualifiedSemifinals(prediction, real);
       const puntsGolsSemis = scoreSemifinalExactGoals(prediction, real);
+      const puntsFinalistes = scoreQualifiedFinalists(prediction, real);
 
       const total =
         punts1x2 +
@@ -851,7 +898,8 @@ export async function GET() {
         puntsClassificatQuarts +
         puntsGolsQuarts +
         puntsClassificatSemis +
-        puntsGolsSemis;
+        puntsGolsSemis +
+        puntsFinalistes;
 
       return {
         nickname: item.nickname,
@@ -869,6 +917,7 @@ export async function GET() {
         puntsGolsQuarts,
         puntsClassificatSemis,
         puntsGolsSemis,
+        puntsFinalistes,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
