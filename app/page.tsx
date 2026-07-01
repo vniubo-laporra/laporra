@@ -144,22 +144,22 @@ export default function HomePage() {
                 <tr>
                   <th className="sticky left-0 z-20 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">#</th>
                   <th className="sticky left-12 z-30 whitespace-nowrap px-3 bg-slate-900 shadow-[8px_0_12px_-8px_rgba(0,0,0,.6)] p-3 text-left">Nickname</th>
-                  <th className="p-3 text-center">Punts totals</th>
-                  <th className="p-3 text-center">1X2 grups</th>
-                  <th className="p-3 text-center">Gols equip grups</th>
-                  <th className="p-3 text-center">Punts equip grup</th>
-                  <th className="p-3 text-center">Gols totals equip grup</th>
-                  <th className="p-3 text-center">Classificat 1r/2n</th>
-                  <th className="p-3 text-center">Tercers classificats</th>
-                  <th className="p-3 text-center">Gols setzens</th>
-                  <th className="p-3 text-center">Classificat 8ens</th>
-                  <th className="p-3 text-center">Gols vuitens</th>
-                  <th className="p-3 text-center">Classificat 4ts</th>
-                  <th className="p-3 text-center">Gols quarts</th>
-                  <th className="p-3 text-center">Classificat semis</th>
-                  <th className="p-3 text-center">Gols semis</th>
-                  <th className="p-3 text-center">Finalista</th>
-                  <th className="p-3 text-center">Gols 3r lloc</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Punts totals</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">1X2 grups</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols equip grups</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Punts equip grup</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols totals equip grup</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Classificat 1r/2n</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Tercers classificats</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols setzens</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Classificat 8ens</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols vuitens</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Classificat 4ts</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols quarts</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Classificat semis</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols semis</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Finalista</th>
+                  <th className="w-14 min-w-14 p-2 text-center whitespace-nowrap">Gols 3r lloc</th>
                 </tr>
               </thead>
 
@@ -174,7 +174,7 @@ export default function HomePage() {
                       </a>
                     </td>
 
-                    <td className="p-3 text-center text-xl font-black text-white">{row.total}</td>
+                    <td className="w-16 min-w-16 p-2 text-center text-lg font-black text-white">{row.total}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.punts1x2}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsExactesEquip}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsTotalsEquipGrup}</td>
