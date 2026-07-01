@@ -186,12 +186,13 @@ export default function HomePage() {
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsClassificatSemis}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsGolsSemis}</td>
                     <td className="p-3 text-center font-bold text-slate-300">{row.puntsFinalistes}</td>
+                    <td className="p-3 text-center font-bold text-slate-300">{row.puntsGols3rLloc}</td>
                   </tr>
                 ))}
 
                 {leaderboard.length === 0 && (
                   <tr>
-                    <td colSpan={17} className="p-6 text-center text-slate-400">
+                    <td colSpan={18} className="p-6 text-center text-slate-400">
                       Encara no hi ha prediccions validades.
                     </td>
                   </tr>
