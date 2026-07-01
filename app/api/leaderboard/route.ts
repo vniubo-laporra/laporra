@@ -870,6 +870,39 @@ function scoreThirdPlaceExactGoals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreFinalExactGoals(prediction: any, real: any) {
+  const predicted = prediction?.knockout?.["M104"];
+  const realMatch = real?.knockout?.["M104"];
+
+  if (!predicted || !realMatch) return 0;
+
+  let points = 0;
+
+  const hasValue = (v: any) =>
+    v !== undefined &&
+    v !== null &&
+    v !== "";
+
+  if (
+    hasValue(predicted.home) &&
+    hasValue(realMatch.home) &&
+    Number(predicted.home) === Number(realMatch.home)
+  ) {
+    points += 25;
+  }
+
+  if (
+    hasValue(predicted.away) &&
+    hasValue(realMatch.away) &&
+    Number(predicted.away) === Number(realMatch.away)
+  ) {
+    points += 25;
+  }
+
+  return points;
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -919,6 +952,7 @@ export async function GET() {
       const puntsGolsSemis = scoreSemifinalExactGoals(prediction, real);
       const puntsFinalistes = scoreQualifiedFinalists(prediction, real);
       const puntsGols3rLloc = scoreThirdPlaceExactGoals(prediction, real);
+      const puntsGolsFinal = scoreFinalExactGoals(prediction, real);
 
       const total =
         punts1x2 +
@@ -935,7 +969,8 @@ export async function GET() {
         puntsClassificatSemis +
         puntsGolsSemis +
         puntsFinalistes +
-        puntsGols3rLloc;
+        puntsGols3rLloc +
+        puntsGolsFinal;
 
       return {
         nickname: item.nickname,
@@ -955,6 +990,7 @@ export async function GET() {
         puntsGolsSemis,
         puntsFinalistes,
         puntsGols3rLloc,
+        puntsGolsFinal,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
