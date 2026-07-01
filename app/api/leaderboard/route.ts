@@ -553,7 +553,14 @@ function buildPredictedBracket(tables: any, scores: any) {
     { id: "M96", round: "Vuitens", home: getWinner(byId(round32, "M85"), scores), away: getWinner(byId(round32, "M87"), scores) },
   ];
 
-  return [...round32, ...r16];
+  const quarters = [
+    { id: "M97", round: "Quarts", home: getWinner(byId(r16, "M89"), scores), away: getWinner(byId(r16, "M90"), scores) },
+    { id: "M98", round: "Quarts", home: getWinner(byId(r16, "M93"), scores), away: getWinner(byId(r16, "M94"), scores) },
+    { id: "M99", round: "Quarts", home: getWinner(byId(r16, "M91"), scores), away: getWinner(byId(r16, "M92"), scores) },
+    { id: "M100", round: "Quarts", home: getWinner(byId(r16, "M95"), scores), away: getWinner(byId(r16, "M96"), scores) },
+  ];
+
+  return [...round32, ...r16, ...quarters];
 }
 
 function scoreQualifiedRound16(prediction: any, real: any) {
@@ -604,6 +611,56 @@ function scoreQualifiedRound16(prediction: any, real: any) {
 
   return points;
 }
+
+function scoreQualifiedQuarterfinals(prediction: any, real: any) {
+  const predictedTables: any = {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    predictedTables[group] = calculateGroupTableFromScores(prediction, group);
+    realTables[group] = calculateGroupTableFromScores(real, group);
+  });
+
+  const predictedBracket = buildPredictedBracket(predictedTables, prediction?.knockout || {});
+  const realBracket = buildPredictedBracket(realTables, real?.knockout || {});
+
+  const predictedQuarters = predictedBracket.filter((m: any) => m.round === "Quarts");
+  const realQuarters = realBracket.filter((m: any) => m.round === "Quarts");
+
+  const confirmedRealTeams = realQuarters
+    .flatMap((m: any) => [m.home, m.away])
+    .filter(Boolean);
+
+  if (!confirmedRealTeams.length) return 0;
+
+  let points = 0;
+
+  predictedQuarters.forEach((match: any) => {
+    const realSameMatch = realQuarters.find((m: any) => m.id === match.id);
+
+    ["home", "away"].forEach((side) => {
+      const predictedTeam = side === "home" ? match.home : match.away;
+      if (!predictedTeam) return;
+
+      const realTeamSameSlot = realSameMatch
+        ? side === "home"
+          ? realSameMatch.home
+          : realSameMatch.away
+        : null;
+
+      if (confirmedRealTeams.includes(predictedTeam)) {
+        points += 9;
+      }
+
+      if (realTeamSameSlot && realTeamSameSlot === predictedTeam) {
+        points += 9;
+      }
+    });
+  });
+
+  return points;
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -647,6 +704,7 @@ export async function GET() {
       const puntsGolsSetzens = scoreRound32ExactGoals(prediction, real);
       const puntsClassificatVuitens = scoreQualifiedRound16(prediction, real);
       const puntsGolsVuitens = scoreRound16ExactGoals(prediction, real);
+      const puntsClassificatQuarts = scoreQualifiedQuarterfinals(prediction, real);
 
       const total =
         punts1x2 +
@@ -657,7 +715,8 @@ export async function GET() {
         puntsTercersClassificats +
         puntsGolsSetzens +
         puntsClassificatVuitens +
-        puntsGolsVuitens;
+        puntsGolsVuitens +
+        puntsClassificatQuarts;
 
       return {
         nickname: item.nickname,
@@ -671,6 +730,7 @@ export async function GET() {
         puntsGolsSetzens,
         puntsClassificatVuitens,
         puntsGolsVuitens,
+        puntsClassificatQuarts,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
