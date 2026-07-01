@@ -661,6 +661,43 @@ function scoreQualifiedQuarterfinals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreQuarterfinalExactGoals(prediction: any, real: any) {
+  let points = 0;
+
+  const matches = ["M97","M98","M99","M100"];
+
+  const hasValue = (v: any) =>
+    v !== undefined &&
+    v !== null &&
+    v !== "";
+
+  matches.forEach((matchId) => {
+    const predicted = prediction?.knockout?.[matchId];
+    const realMatch = real?.knockout?.[matchId];
+
+    if (!predicted || !realMatch) return;
+
+    if (
+      hasValue(predicted.home) &&
+      hasValue(realMatch.home) &&
+      Number(predicted.home) === Number(realMatch.home)
+    ) {
+      points += 8;
+    }
+
+    if (
+      hasValue(predicted.away) &&
+      hasValue(realMatch.away) &&
+      Number(predicted.away) === Number(realMatch.away)
+    ) {
+      points += 8;
+    }
+  });
+
+  return points;
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -705,6 +742,7 @@ export async function GET() {
       const puntsClassificatVuitens = scoreQualifiedRound16(prediction, real);
       const puntsGolsVuitens = scoreRound16ExactGoals(prediction, real);
       const puntsClassificatQuarts = scoreQualifiedQuarterfinals(prediction, real);
+      const puntsGolsQuarts = scoreQuarterfinalExactGoals(prediction, real);
 
       const total =
         punts1x2 +
@@ -716,7 +754,8 @@ export async function GET() {
         puntsGolsSetzens +
         puntsClassificatVuitens +
         puntsGolsVuitens +
-        puntsClassificatQuarts;
+        puntsClassificatQuarts +
+        puntsGolsQuarts;
 
       return {
         nickname: item.nickname,
@@ -731,6 +770,7 @@ export async function GET() {
         puntsClassificatVuitens,
         puntsGolsVuitens,
         puntsClassificatQuarts,
+        puntsGolsQuarts,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
