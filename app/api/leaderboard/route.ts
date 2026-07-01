@@ -560,7 +560,12 @@ function buildPredictedBracket(tables: any, scores: any) {
     { id: "M100", round: "Quarts", home: getWinner(byId(r16, "M95"), scores), away: getWinner(byId(r16, "M96"), scores) },
   ];
 
-  return [...round32, ...r16, ...quarters];
+  const semis = [
+    { id: "M101", round: "Semifinals", home: getWinner(byId(quarters, "M97"), scores), away: getWinner(byId(quarters, "M98"), scores) },
+    { id: "M102", round: "Semifinals", home: getWinner(byId(quarters, "M99"), scores), away: getWinner(byId(quarters, "M100"), scores) },
+  ];
+
+  return [...round32, ...r16, ...quarters, ...semis];
 }
 
 function scoreQualifiedRound16(prediction: any, real: any) {
@@ -698,6 +703,56 @@ function scoreQuarterfinalExactGoals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreQualifiedSemifinals(prediction: any, real: any) {
+  const predictedTables: any = {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    predictedTables[group] = calculateGroupTableFromScores(prediction, group);
+    realTables[group] = calculateGroupTableFromScores(real, group);
+  });
+
+  const predictedBracket = buildPredictedBracket(predictedTables, prediction?.knockout || {});
+  const realBracket = buildPredictedBracket(realTables, real?.knockout || {});
+
+  const predictedSemis = predictedBracket.filter((m: any) => m.round === "Semifinals");
+  const realSemis = realBracket.filter((m: any) => m.round === "Semifinals");
+
+  const confirmedRealTeams = realSemis
+    .flatMap((m: any) => [m.home, m.away])
+    .filter(Boolean);
+
+  if (!confirmedRealTeams.length) return 0;
+
+  let points = 0;
+
+  predictedSemis.forEach((match: any) => {
+    const realSameMatch = realSemis.find((m: any) => m.id === match.id);
+
+    ["home", "away"].forEach((side) => {
+      const predictedTeam = side === "home" ? match.home : match.away;
+      if (!predictedTeam) return;
+
+      const realTeamSameSlot = realSameMatch
+        ? side === "home"
+          ? realSameMatch.home
+          : realSameMatch.away
+        : null;
+
+      if (confirmedRealTeams.includes(predictedTeam)) {
+        points += 12;
+      }
+
+      if (realTeamSameSlot && realTeamSameSlot === predictedTeam) {
+        points += 12;
+      }
+    });
+  });
+
+  return points;
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -743,6 +798,7 @@ export async function GET() {
       const puntsGolsVuitens = scoreRound16ExactGoals(prediction, real);
       const puntsClassificatQuarts = scoreQualifiedQuarterfinals(prediction, real);
       const puntsGolsQuarts = scoreQuarterfinalExactGoals(prediction, real);
+      const puntsClassificatSemis = scoreQualifiedSemifinals(prediction, real);
 
       const total =
         punts1x2 +
@@ -755,7 +811,8 @@ export async function GET() {
         puntsClassificatVuitens +
         puntsGolsVuitens +
         puntsClassificatQuarts +
-        puntsGolsQuarts;
+        puntsGolsQuarts +
+        puntsClassificatSemis;
 
       return {
         nickname: item.nickname,
@@ -771,6 +828,7 @@ export async function GET() {
         puntsGolsVuitens,
         puntsClassificatQuarts,
         puntsGolsQuarts,
+        puntsClassificatSemis,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
