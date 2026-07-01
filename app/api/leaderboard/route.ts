@@ -903,6 +903,45 @@ function scoreFinalExactGoals(prediction: any, real: any) {
   return points;
 }
 
+
+function scoreFinalPlacements(prediction: any, real: any) {
+  const predictedTables: any = {};
+  const realTables: any = {};
+
+  Object.keys(GROUPS).forEach((group) => {
+    predictedTables[group] = calculateGroupTableFromScores(prediction, group);
+    realTables[group] = calculateGroupTableFromScores(real, group);
+  });
+
+  const predictedBracket = buildPredictedBracket(predictedTables, prediction?.knockout || {});
+  const realBracket = buildPredictedBracket(realTables, real?.knockout || {});
+
+  const predictedThird = predictedBracket.find((m: any) => m.id === "M103");
+  const realThird = realBracket.find((m: any) => m.id === "M103");
+
+  const predictedFinal = predictedBracket.find((m: any) => m.id === "M104");
+  const realFinal = realBracket.find((m: any) => m.id === "M104");
+
+  const predictedThirdWinner = getWinner(predictedThird, prediction?.knockout || {});
+  const realThirdWinner = getWinner(realThird, real?.knockout || {});
+
+  const predictedThirdLoser = getLoser(predictedThird, prediction?.knockout || {});
+  const realThirdLoser = getLoser(realThird, real?.knockout || {});
+
+  const predictedChampion = getWinner(predictedFinal, prediction?.knockout || {});
+  const realChampion = getWinner(realFinal, real?.knockout || {});
+
+  const predictedRunnerUp = getLoser(predictedFinal, prediction?.knockout || {});
+  const realRunnerUp = getLoser(realFinal, real?.knockout || {});
+
+  return {
+    puntsQuart: predictedThirdLoser && realThirdLoser && predictedThirdLoser === realThirdLoser ? 25 : 0,
+    puntsTercer: predictedThirdWinner && realThirdWinner && predictedThirdWinner === realThirdWinner ? 30 : 0,
+    puntsSubcampio: predictedRunnerUp && realRunnerUp && predictedRunnerUp === realRunnerUp ? 40 : 0,
+    puntsCampio: predictedChampion && realChampion && predictedChampion === realChampion ? 60 : 0,
+  };
+}
+
 export async function GET() {
   const { data: submissions, error: submissionsError } = await supabaseAdmin
     .from("submissions")
@@ -953,6 +992,11 @@ export async function GET() {
       const puntsFinalistes = scoreQualifiedFinalists(prediction, real);
       const puntsGols3rLloc = scoreThirdPlaceExactGoals(prediction, real);
       const puntsGolsFinal = scoreFinalExactGoals(prediction, real);
+      const finalPlacements = scoreFinalPlacements(prediction, real);
+      const puntsQuart = finalPlacements.puntsQuart;
+      const puntsTercer = finalPlacements.puntsTercer;
+      const puntsSubcampio = finalPlacements.puntsSubcampio;
+      const puntsCampio = finalPlacements.puntsCampio;
 
       const total =
         punts1x2 +
@@ -970,7 +1014,11 @@ export async function GET() {
         puntsGolsSemis +
         puntsFinalistes +
         puntsGols3rLloc +
-        puntsGolsFinal;
+        puntsGolsFinal +
+        puntsQuart +
+        puntsTercer +
+        puntsSubcampio +
+        puntsCampio;
 
       return {
         nickname: item.nickname,
@@ -991,6 +1039,10 @@ export async function GET() {
         puntsFinalistes,
         puntsGols3rLloc,
         puntsGolsFinal,
+        puntsQuart,
+        puntsTercer,
+        puntsSubcampio,
+        puntsCampio,
       };
     })
     .sort((a: any, b: any) => b.total - a.total);
